@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소구점 고민 — 케겔 · 유산소 · 힙</title>
+<style>
+  :root{
+    --bg:#f7f5ef; --bg-soft:#f0ebe0; --card:#ffffff; --ink:#1e1b17; --sub:#756e62; --line:#e7e0d2;
+    --accent:#9c7a3c; --accent-soft:#efe5cd;
+    --hip:#b3436a; --hip-deep:#7d2c49; --hip-soft:#f8e9ee; --hip-line:#ecc9d4;
+    --kegel:#5b4a9e; --kegel-deep:#392c72; --kegel-soft:#ece7f7; --kegel-line:#d4cae9;
+    --mute:#9a9284; --mute-soft:#efece2; --mute-line:#ddd6c6; --step:#2c7a72; --step-soft:#e0f1ef; --step-deep:#1d5750;
+    --shadow-lg:0 24px 48px -28px rgba(30,26,20,.28);
+    --shadow-sm:0 2px 10px -4px rgba(30,26,20,.12);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#141210; --bg-soft:#1a1713; --card:#1d1a15; --ink:#f1ece1; --sub:#a89f8f; --line:#332d24;
+      --accent:#caa25f; --accent-soft:#2b2317;
+      --hip:#e281a0; --hip-deep:#c65e83; --hip-soft:#33202a; --hip-line:#4a2c39;
+      --kegel:#a597dd; --kegel-deep:#8677c9; --kegel-soft:#211d38; --kegel-line:#372f57;
+      --mute:#948c7c; --mute-soft:#201d17; --mute-line:#332e22; --step:#6cc3ba; --step-soft:#14312e; --step-deep:#3e948b;
+      --shadow-lg:0 24px 48px -28px rgba(0,0,0,.5);
+      --shadow-sm:0 2px 10px -4px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141210; --bg-soft:#1a1713; --card:#1d1a15; --ink:#f1ece1; --sub:#a89f8f; --line:#332d24;
+    --accent:#caa25f; --accent-soft:#2b2317;
+    --hip:#e281a0; --hip-deep:#c65e83; --hip-soft:#33202a; --hip-line:#4a2c39;
+    --kegel:#a597dd; --kegel-deep:#8677c9; --kegel-soft:#211d38; --kegel-line:#372f57;
+    --mute:#948c7c; --mute-soft:#201d17; --mute-line:#332e22; --step:#6cc3ba; --step-soft:#14312e; --step-deep:#3e948b;
+    --shadow-lg:0 24px 48px -28px rgba(0,0,0,.5);
+    --shadow-sm:0 2px 10px -4px rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f5ef; --bg-soft:#f0ebe0; --card:#ffffff; --ink:#1e1b17; --sub:#756e62; --line:#e7e0d2;
+    --accent:#9c7a3c; --accent-soft:#efe5cd;
+    --hip:#b3436a; --hip-deep:#7d2c49; --hip-soft:#f8e9ee; --hip-line:#ecc9d4;
+    --kegel:#5b4a9e; --kegel-deep:#392c72; --kegel-soft:#ece7f7; --kegel-line:#d4cae9;
+    --mute:#9a9284; --mute-soft:#efece2; --mute-line:#ddd6c6; --step:#2c7a72; --step-soft:#e0f1ef; --step-deep:#1d5750;
+    --shadow-lg:0 24px 48px -28px rgba(30,26,20,.28);
+    --shadow-sm:0 2px 10px -4px rgba(30,26,20,.12);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
+    line-height:1.66;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  .page{max-width:1180px;margin:0 auto;padding:56px 28px 96px}
+  @media(max-width:600px){.page{padding:36px 16px 72px}}
+
+  /* ---------- masthead ---------- */
+  .masthead{margin:0 0 40px}
+  .kicker{
+    font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--accent);
+    text-transform:uppercase;display:flex;align-items:center;gap:10px;margin:0 0 14px
+  }
+  .kicker::after{content:"";flex:1;height:1px;background:var(--line)}
+  h1{
+    font-size:clamp(28px,4vw,38px);margin:0;letter-spacing:-.02em;font-weight:800;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;
+    padding:44px 40px 38px;margin:0 0 52px;box-shadow:var(--shadow-lg);overflow:hidden;
+  }
+  @media(max-width:600px){.hero{padding:32px 22px 28px;border-radius:18px}}
+  .hero-statement{
+    font-size:clamp(22px,3.4vw,29px);font-weight:800;line-height:1.5;letter-spacing:-.01em;
+    max-width:11.5em;
+  }
+  .hero-statement em{font-style:normal}
+  .hero-statement .c-hip{color:var(--hip)}
+  .hero-statement .c-kegel{color:var(--kegel)}
+  .hero-statement .c-step{color:var(--step)}
+  .hero-sub{font-size:14.5px;color:var(--sub);margin-top:14px;max-width:38em}
+
+  .force{margin:30px 0 4px;display:flex;flex-direction:column;gap:10px}
+  .force-row{display:flex;align-items:center;gap:0}
+  .force-side{flex:1;display:flex;align-items:center;height:14px;overflow:hidden}
+  .force-side.out{justify-content:flex-end}
+  .force-side.in{justify-content:flex-start}
+  .chev{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;margin:0 2px}
+  .force-side.out .chev{border-right:9px solid var(--hip)}
+  .force-side.in .chev{border-left:9px solid var(--kegel)}
+  .force-side.out .chev:nth-child(1){opacity:.28} .force-side.out .chev:nth-child(2){opacity:.55}
+  .force-side.out .chev:nth-child(3){opacity:.85} .force-side.out .chev:nth-child(4){opacity:1}
+  .force-side.in .chev:nth-child(1){opacity:1} .force-side.in .chev:nth-child(2){opacity:.85}
+  .force-side.in .chev:nth-child(3){opacity:.55} .force-side.in .chev:nth-child(4){opacity:.28}
+  .force-mid{width:1px;align-self:stretch;background:var(--line);margin:0 14px}
+  .force-caption{display:flex;font-size:11px;color:var(--sub);letter-spacing:.02em}
+  .force-caption span{flex:1}
+  .force-caption .l{text-align:right;padding-right:14px}
+  .force-caption .r{text-align:left;padding-left:14px}
+  .force-cycle{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px}
+  .force-cycle .ln{width:34px;height:1px;background:var(--step);opacity:.45}
+  .force-cycle span.tag{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--step);
+    background:var(--step-soft);border-radius:999px;padding:4px 13px;white-space:nowrap}
+
+  /* ---------- section shell ---------- */
+  .section{margin:0 0 52px}
+  .section-head{display:flex;align-items:baseline;gap:16px;margin:0 0 20px}
+  .secnum{
+    font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em;
+    border:1px solid var(--accent);border-radius:999px;padding:3px 10px;flex:none;
+    font-variant-numeric:tabular-nums;
+  }
+  h2{font-size:19px;margin:0;font-weight:800;letter-spacing:-.01em}
+  .h2sub{font-size:12.5px;color:var(--sub);font-weight:600;margin-left:2px}
+
+  /* ---------- problems ---------- */
+  .problems{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:600px){.problems{grid-template-columns:1fr}}
+  .problem{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px 16px 20px;box-shadow:var(--shadow-sm);
+  }
+  .problem::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px}
+  .problem.hip::before{background:var(--hip)}
+  .problem.kegel::before{background:var(--kegel)}
+  .problem.step::before{background:var(--step)}
+  .problem-text{font-weight:700;font-size:14.5px;display:block}
+
+  /* ---------- pillars ---------- */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:860px){.pillars{grid-template-columns:1fr}}
+  .pillar{border-radius:16px;padding:26px 26px 24px;color:#fff;box-shadow:var(--shadow-lg);position:relative}
+  .pillar.hip{background:linear-gradient(160deg,var(--hip) 0%,var(--hip-deep) 100%)}
+  .pillar.kegel{background:linear-gradient(160deg,var(--kegel) 0%,var(--kegel-deep) 100%)}
+  .pillar.step{background:linear-gradient(160deg,var(--step) 0%,var(--step-deep) 100%)}
+  .pillar-kicker{font-size:11.5px;font-weight:700;opacity:.82;letter-spacing:.08em;text-transform:uppercase}
+  .pillar-title{font-size:27px;font-weight:800;margin:6px 0 2px;letter-spacing:-.01em}
+  .pillar-sub{font-size:13px;opacity:.88;margin-bottom:18px}
+  .pillar-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+  .pillar-list li{
+    font-size:13.5px;padding-top:10px;border-top:1px solid rgba(255,255,255,.24);
+  }
+  .pillar-list li b{font-weight:800}
+
+  /* ---------- appeal ---------- */
+  .appeal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:860px){.appeal{grid-template-columns:1fr}}
+  .appeal-card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;
+    box-shadow:var(--shadow-sm);
+  }
+  .appeal-label{
+    font-size:11.5px;font-weight:800;letter-spacing:.05em;margin-bottom:12px;
+    display:inline-block;border-radius:6px;padding:3px 10px;
+  }
+  .appeal-card.hip .appeal-label{background:var(--hip-soft);color:var(--hip-deep)}
+  .appeal-card.kegel .appeal-label{background:var(--kegel-soft);color:var(--kegel-deep)}
+  .appeal-card.step .appeal-label{background:var(--step-soft);color:var(--step)}
+  .appeal-text{font-size:15px;font-weight:700;line-height:1.55;letter-spacing:-.01em}
+  .appeal-card.q .appeal-label{background:var(--accent-soft);color:var(--accent)}
+  .appeal-card.mutec .appeal-label{background:var(--mute-soft);color:var(--sub)}
+  .appeal-row{display:grid;grid-template-columns:110px 1fr;gap:20px;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 22px;margin:0 0 10px;box-shadow:var(--shadow-sm)}
+  @media(max-width:600px){.appeal-row{grid-template-columns:1fr;gap:10px;padding:16px 18px}}
+  .appeal-row .appeal-label{margin:0;justify-self:start}
+  .appeal-row .appeal-text{font-size:15px}
+  .appeal-row.kegel{border-left:3px solid var(--kegel)}
+  .appeal-row.step{border-left:3px solid var(--step)}
+  .appeal-row.mutec{border-left:3px solid var(--mute)}
+  .appeal-row.kegel .appeal-label{background:var(--kegel-soft);color:var(--kegel-deep)}
+  .appeal-row.step .appeal-label{background:var(--step-soft);color:var(--step)}
+  .appeal-row.mutec .appeal-label{background:var(--mute-soft);color:var(--sub)}
+  .soguu-sub{font-size:12px;font-weight:800;color:var(--sub);letter-spacing:.06em;margin:0 0 14px}
+  .main-appeal{border:1.5px solid var(--hip);background:var(--card);border-radius:16px;
+    padding:24px 26px;margin:0 0 16px;box-shadow:var(--shadow-sm)}
+  .main-tag{font-size:10.5px;font-weight:800;background:var(--hip);color:#fff;border-radius:6px;
+    padding:3px 10px;display:inline-block;margin-bottom:12px;letter-spacing:.05em}
+  .main-title{font-size:clamp(19px,2.6vw,23px);font-weight:800;letter-spacing:-.01em;color:var(--hip-deep);line-height:1.4}
+  .main-paren{font-size:15px;color:var(--sub);font-weight:700}
+  .main-desc{font-size:13.5px;color:var(--sub);margin-top:9px;line-height:1.65}
+  .main-appeal.kegel{border-color:var(--kegel)}
+  .main-appeal.step{border-color:var(--step)}
+  .main-appeal.mutec{border-color:var(--mute)}
+  .main-tag.kegel{background:var(--kegel)}
+  .main-tag.step{background:var(--step)}
+  .main-tag.mutec{background:var(--mute)}
+  .sub-title{font-size:clamp(16px,2.1vw,19.5px);font-weight:800;letter-spacing:-.01em;line-height:1.5}
+  .main-appeal.kegel .main-title{color:var(--kegel-deep)}
+  .main-appeal.step .main-title{color:var(--step-deep)}
+  .main-appeal.mutec .main-title{color:var(--ink)}
+
+
+  /* ---------- competition ---------- */
+  .comp-wrap{border:1px solid var(--line);border-radius:14px;background:var(--card);
+    overflow:hidden;box-shadow:var(--shadow-sm)}
+  .comp{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+  .comp th{font-size:11px;color:var(--sub);font-weight:800;text-align:right;padding:11px 12px;
+    border-bottom:1px solid var(--line);background:var(--bg-soft);letter-spacing:.02em}
+  .comp th:first-child{text-align:left}
+  .comp td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right;
+    font-variant-numeric:tabular-nums;color:var(--sub)}
+  .comp td:first-child{text-align:left;font-weight:700;color:var(--ink);white-space:nowrap}
+  .comp td.f{font-weight:800;color:var(--ink)}
+  .comp tr:last-child td{border-bottom:none}
+  .ax{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:1px}
+  .ax.hip{background:var(--hip)} .ax.kegel{background:var(--kegel)}
+  .ax.step{background:var(--step)} .ax.home{background:var(--accent)}
+  .cbadge{display:inline-block;min-width:0;text-align:center;border-radius:999px;padding:3px 9px;
+    font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+  .cbadge.good{background:var(--step-soft);color:var(--step)}
+  .cbadge.mid{background:var(--accent-soft);color:var(--accent)}
+  .cbadge.bad{background:var(--hip-soft);color:var(--hip-deep)}
+  .comp-legend{font-size:11.5px;color:var(--sub);margin-top:12px;display:flex;gap:16px;flex-wrap:wrap}
+
+
+  /* ---------- naming ---------- */
+  .grouplabel{font-size:12px;font-weight:800;color:var(--sub);letter-spacing:.04em;margin:24px 0 11px}
+  .namegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media(max-width:860px){.namegrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.namegrid{grid-template-columns:1fr}}
+  .namecard{background:var(--card);border:1px solid var(--line);border-radius:11px;
+    padding:13px 15px;box-shadow:var(--shadow-sm)}
+  .namecard .n{font-size:15.5px;font-weight:800;letter-spacing:-.01em}
+  .namecard .m{font-size:11.5px;color:var(--sub);margin-top:3px}
+  .namecard.hip{border-left:3px solid var(--hip)}
+  .namecard.step{border-left:3px solid var(--step)}
+  .namecard.kegel{border-left:3px solid var(--kegel)}
+  .namecard.accent{border-left:3px solid var(--accent)}
+  .namecard.mute{border-left:3px solid var(--mute)}
+
+  .titlelist{border:1px solid var(--line);border-radius:14px;background:var(--card);
+    overflow:hidden;box-shadow:var(--shadow-sm)}
+  .titlerow{display:grid;grid-template-columns:34px 1fr 128px;gap:12px;align-items:center;
+    padding:11px 15px;border-bottom:1px solid var(--line)}
+  @media(max-width:640px){.titlerow{grid-template-columns:28px 1fr;gap:8px} .titlerow .anchor{display:none}}
+  .titlerow:last-child{border-bottom:none}
+  .titlerow.rec{background:var(--step-soft)}
+  .titlerow .no{font-size:11.5px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums}
+  .titlerow .tt{font-size:13.5px;font-weight:600;letter-spacing:-.01em;word-break:keep-all;line-height:1.5}
+  .titlerow .anchor{font-size:10.5px;font-weight:700;color:var(--sub);text-align:right;white-space:nowrap}
+  .rec-chip{font-size:9px;font-weight:800;background:var(--step);color:#fff;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  .warnbox{background:var(--accent-soft);border-radius:10px;padding:13px 16px;font-size:12.5px;
+    color:var(--ink);margin-top:16px;line-height:1.65}
+
+  /* ---------- evidence ---------- */
+  .evidence-group{margin:0 0 30px}
+  .evidence-title{
+    display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;margin:0 0 14px;
+  }
+  .evidence-title .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .evidence-title.hip .dot{background:var(--hip)} .evidence-title.hip{color:var(--hip-deep)}
+  .evidence-title.kegel .dot{background:var(--kegel)} .evidence-title.kegel{color:var(--kegel-deep)}
+  .evidence-title .cap{font-weight:600;color:var(--sub);font-size:12px}
+
+  .scroll-safe{overflow-x:auto}
+  .barlist{border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-sm)}
+  .bar-row{
+    display:grid;grid-template-columns:1.8fr 1.1fr .78fr .55fr .95fr 1fr .72fr;
+    align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line);
+  }
+  .bar-row > div{min-width:0}
+  .bar-row:last-child{border-bottom:none}
+  .bar-label{font-size:13px;font-weight:700}
+  .bar-label .note{display:block;font-size:10.5px;font-weight:500;color:var(--sub);margin-top:1px}
+  .bar-track{height:9px;border-radius:5px;background:var(--bg-soft);position:relative;overflow:hidden}
+  .bar-fill{height:100%;border-radius:5px}
+  .bar-fill.hip{background:var(--hip)}
+  .bar-fill.kegel{background:var(--kegel)}
+  .bar-value{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);white-space:nowrap}
+  .badge{
+    font-size:11px;font-weight:800;text-align:center;border-radius:999px;padding:3px 2px;
+    font-variant-numeric:tabular-nums;
+  }
+  .badge.hip{background:var(--hip-soft);color:var(--hip-deep)}
+  .badge.kegel{background:var(--kegel-soft);color:var(--kegel-deep)}
+  .badge.mute{background:var(--mute-soft);color:var(--sub)}
+  .itag{display:inline-block;font-size:9.5px;font-weight:800;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  .itag.buy{background:var(--step-soft);color:var(--step)}
+  .itag.info{background:var(--mute-soft);color:var(--sub)}
+  .bar-sales{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700;white-space:nowrap}
+  .bar-prd{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);white-space:nowrap;overflow:hidden}
+  .bar-female{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;white-space:nowrap;color:var(--ink)}
+  .bar-head{background:var(--bg-soft);font-size:10.5px;font-weight:800;color:var(--sub);letter-spacing:.02em;padding-top:9px;padding-bottom:9px}
+  .bar-head .c3,.bar-head .c5,.bar-head .c6{text-align:right} .bar-head .c4,.bar-head .c7{text-align:center}
+  .evidence-title.step .dot{background:var(--step)} .evidence-title.step{color:var(--step)}
+  .bar-fill.step{background:var(--step)}
+  .badge.step{background:var(--step-soft);color:var(--step)}
+
+  @media(max-width:600px){
+    .bar-row{grid-template-columns:1.7fr .6fr .85fr .6fr .95fr 1fr .75fr;gap:5px;padding:10px 8px}
+    .bar-label{font-size:11.5px}
+    .bar-value,.bar-prd,.bar-sales,.bar-female{font-size:10.5px}
+    .badge,.cbadge{font-size:9.5px;padding:2px 4px;min-width:0}
+    .itag{font-size:8.5px;padding:1px 3px;margin-left:3px}
+    .bar-head{font-size:9px}
+    .bar-label{font-size:12px}
+  }
+
+  .excluded-title{font-size:12px;font-weight:800;color:var(--sub);letter-spacing:.03em;margin:0 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    background:var(--mute-soft);border:1px solid var(--mute-line);border-radius:999px;
+    padding:6px 13px;font-size:12px;color:var(--sub);white-space:nowrap;
+  }
+  .chip b{color:var(--ink);font-weight:700}
+
+  .insight{
+    margin-top:22px;border-radius:12px;padding:16px 20px;background:var(--accent-soft);
+    border-left:3px solid var(--accent);font-size:12.8px;color:var(--ink);line-height:1.75;
+  }
+  .insight b{font-weight:800}
+
+  .footnote{font-size:11.5px;color:var(--sub);text-align:center;margin-top:56px;padding-top:22px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="kicker">소구점 고민</div>
+    <h1>케겔·유산소·힙, 한 기구로</h1>
+  </div>
+
+  <div class="hero">
+    <div class="hero-statement">밀고 · 모으고 · 스텝하고 —<br><em><span class="c-hip">힙</span> · <span class="c-kegel">골반</span> · <span class="c-step">유산소</span></em></div>
+    <div class="hero-sub">바깥으로 밀면 힙·라인(미용), 안으로 모으면 케겔·코어(건강), 사이드 스텝으로 유산소(다이어트). 여성의 하체 고민을 한 기구로.</div>
+    <div class="force">
+      <div class="force-row">
+        <div class="force-side out"><span class="chev"></span><span class="chev"></span><span class="chev"></span><span class="chev"></span></div>
+        <div class="force-mid"></div>
+        <div class="force-side in"><span class="chev"></span><span class="chev"></span><span class="chev"></span><span class="chev"></span></div>
+      </div>
+      <div class="force-caption"><span class="l">밀기 · 힙</span><span class="r">모으기 · 케겔</span></div>
+      <div class="force-cycle"><span class="ln"></span><span class="tag">왕복 · 유산소</span><span class="ln"></span></div>
+    </div>
+  </div>
+
+  <!-- 01 문제점 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">01</span>
+      <h2>타겟이 겪는 문제 <span class="h2sub">3040 여성</span></h2>
+    </div>
+    <div class="problems">
+      <div class="problem hip"><span class="problem-text">엉덩이가 밋밋하다</span></div>
+      <div class="problem hip"><span class="problem-text">다리·골반 라인이 예쁘지 않다</span></div>
+      <div class="problem kegel"><span class="problem-text">코어·골반저근이 약하다</span></div>
+      <div class="problem kegel"><span class="problem-text">요통·요실금이 있다</span></div>
+      <div class="problem step"><span class="problem-text">살이 잘 안 빠진다</span></div>
+      <div class="problem step"><span class="problem-text">유산소 할 시간이 없다</span></div>
+    </div>
+  </div>
+
+  <!-- 02 키워드 연결 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">02</span>
+      <h2>키워드 연결</h2>
+    </div>
+    <div class="pillars">
+      <div class="pillar kegel">
+        <div class="pillar-kicker">안으로 모으기 · 건강</div>
+        <div class="pillar-title">케겔</div>
+        <div class="pillar-sub">골반저근 · 코어 건강</div>
+        <ul class="pillar-list">
+          <li>약한 코어·골반저근 → <b>모아서 케겔·속근육 강화</b></li>
+          <li>요통·요실금 → <b>골반저근·코어로 케어</b></li>
+        </ul>
+      </div>
+      <div class="pillar step">
+        <div class="pillar-kicker">사이드 스텝 · 유산소</div>
+        <div class="pillar-title">스텝퍼</div>
+        <div class="pillar-sub">칼로리 소모 · 다이어트</div>
+        <ul class="pillar-list">
+          <li>살이 잘 안 빠짐 → <b>스텝 동작으로 칼로리 소모</b></li>
+          <li>유산소 할 시간 없음 → <b>집에서 사이드 스텝 유산소</b></li>
+        </ul>
+      </div>
+      <div class="pillar hip">
+        <div class="pillar-kicker">바깥으로 밀기 · 미용</div>
+        <div class="pillar-title">힙</div>
+        <div class="pillar-sub">예쁜 뒤태 · 바디라인</div>
+        <ul class="pillar-list">
+          <li>밋밋한 엉덩이 → <b>밀어서 힙 볼륨업</b></li>
+          <li>다리·골반 라인 → <b>모아서 안쪽허벅지·라인 정리</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 소구점 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">03</span>
+      <h2>소구점</h2>
+    </div>
+    <div class="soguu-sub">제품 효과</div>
+
+    <div class="main-appeal">
+      <span class="main-tag">하체 라인</span>
+      <div class="main-title">360도 슬림 탄탄 하체 라인 완성 <span class="main-paren">(입체 애플힙)</span></div>
+      <div class="main-desc">좌우 + 상하 대각선 운동을 하기 때문에 옆라인까지 잡아줄 수 있음. 앞에서 봤을 때, 뒤에서 봤을 때, 옆에서 봤을 때 모든 방향에서 골반·하체 라인 완성.</div>
+    </div>
+
+    <div class="main-appeal kegel">
+      <span class="main-tag kegel">속근육</span>
+      <div class="main-title">속근육까지 채우는 이너 코어 완성 <span class="main-paren">(케겔·코어)</span></div>
+      <div class="main-desc">외적인 라인을 만들어주는 것뿐 아니라, 내적으로 케겔운동·코어운동 등 속근육을 강화해줌.</div>
+    </div>
+
+    <div class="main-appeal step">
+      <span class="main-tag step">유산소</span>
+      <div class="main-title">근력과 유산소를 동시에 <span class="main-paren">(사이드 스텝 카디오)</span></div>
+      <div class="main-desc">사이드 스텝퍼처럼 사용하면 유산소 운동이 되고 칼로리가 소모됨.</div>
+    </div>
+
+    <div class="main-appeal mutec">
+      <span class="main-tag mutec">확장성</span>
+      <div class="main-title">하체에서 전신으로 확장 <span class="main-paren">(튜빙 밴드)</span></div>
+      <div class="main-desc">튜빙 밴드 사용 시 상체 운동 및 더 강도 높은 하체 운동 가능.</div>
+    </div>
+
+  </div>
+
+  <!-- 04 키워드 조사 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">04</span>
+      <h2>키워드 조사 <span class="h2sub">검색량 × 여성비율</span></h2>
+    </div>
+
+    <div class="evidence-group">
+      <div class="evidence-title hip"><span class="dot"></span>힙 축 (미용 · 밀기) <span class="cap">— 여성 키워드</span></div>
+      <div class="scroll-safe"><div class="barlist">
+        <div class="bar-row bar-head"><div>키워드</div><div></div><div class="c3">월 검색</div><div class="c4">여성</div><div class="c5">여성 검색수</div><div class="c6">상품수</div><div class="c7">경쟁도</div></div>
+        <div class="bar-row">
+          <div class="bar-label">힙어브덕션<span class="itag info">정보</span><span class="note">밀기 동작명</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:100%"></div></div>
+          <div class="bar-value">10,920</div>
+          <div class="badge hip">57%</div>
+          <div class="bar-female">6,224</div>
+          <div class="bar-prd">4,876</div>
+          <div><span class="cbadge good">0.45</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">힙업운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:38%"></div></div>
+          <div class="bar-value">4,110</div>
+          <div class="badge hip">81%</div>
+          <div class="bar-female">3,329</div>
+          <div class="bar-prd">59,852</div>
+          <div><span class="cbadge bad">14.56</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">엉덩이근육<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:23%"></div></div>
+          <div class="bar-value">2,490</div>
+          <div class="badge hip">70%</div>
+          <div class="bar-female">1,743</div>
+          <div class="bar-prd">16,360</div>
+          <div><span class="cbadge mid">6.57</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">중둔근운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:20%"></div></div>
+          <div class="bar-value">2,190</div>
+          <div class="badge hip">50%</div>
+          <div class="bar-female">1,095</div>
+          <div class="bar-prd">1,319</div>
+          <div><span class="cbadge good">0.60</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">힙딥운동<span class="itag info">정보</span><span class="note">옆라인·입체힙 소비자어</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:13%"></div></div>
+          <div class="bar-value">1,430</div>
+          <div class="badge hip">82%</div>
+          <div class="bar-female">1,173</div>
+          <div class="bar-prd">3,110</div>
+          <div><span class="cbadge good">2.17</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">애플힙<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:10%"></div></div>
+          <div class="bar-value">1,130</div>
+          <div class="badge hip">92%</div>
+          <div class="bar-female">1,040</div>
+          <div class="bar-prd">5,330</div>
+          <div><span class="cbadge mid">4.72</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">힙운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:8%"></div></div>
+          <div class="bar-value">850</div>
+          <div class="badge hip">63%</div>
+          <div class="bar-female">536</div>
+          <div class="bar-prd">89,717</div>
+          <div><span class="cbadge bad">105.55</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">힙업<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill hip" style="width:6%"></div></div>
+          <div class="bar-value">680</div>
+          <div class="badge hip">89%</div>
+          <div class="bar-female">605</div>
+          <div class="bar-prd">437,984</div>
+          <div><span class="cbadge bad">644.09</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="evidence-group">
+      <div class="evidence-title kegel"><span class="dot"></span>케겔·골반·코어 축 (건강 · 모으기) <span class="cap">— 여성 키워드</span></div>
+      <div class="scroll-safe"><div class="barlist">
+        <div class="bar-row bar-head"><div>키워드</div><div></div><div class="c3">월 검색</div><div class="c4">여성</div><div class="c5">여성 검색수</div><div class="c6">상품수</div><div class="c7">경쟁도</div></div>
+        <div class="bar-row">
+          <div class="bar-label">케겔운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:100%"></div></div>
+          <div class="bar-value">12,970</div>
+          <div class="badge mute">51%</div>
+          <div class="bar-female">6,615</div>
+          <div class="bar-prd">46,195</div>
+          <div><span class="cbadge mid">3.56</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">골반전방경사<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:77%"></div></div>
+          <div class="bar-value">9,990</div>
+          <div class="badge kegel">71%</div>
+          <div class="bar-female">7,093</div>
+          <div class="bar-prd">657</div>
+          <div><span class="cbadge good">0.07</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">케겔운동기구<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:59%"></div></div>
+          <div class="bar-value">7,690</div>
+          <div class="badge mute">49%</div>
+          <div class="bar-female">3,768</div>
+          <div class="bar-prd">41,704</div>
+          <div><span class="cbadge mid">5.42</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">코어운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:59%"></div></div>
+          <div class="bar-value">7,690</div>
+          <div class="badge kegel">52%</div>
+          <div class="bar-female">3,999</div>
+          <div class="bar-prd">263,624</div>
+          <div><span class="cbadge bad">34.28</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">케겔운동방법<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:29%"></div></div>
+          <div class="bar-value">3,740</div>
+          <div class="badge kegel">71%</div>
+          <div class="bar-female">2,655</div>
+          <div class="bar-prd">41,729</div>
+          <div><span class="cbadge bad">11.16</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">골반스트레칭<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:29%"></div></div>
+          <div class="bar-value">3,740</div>
+          <div class="badge kegel">62%</div>
+          <div class="bar-female">2,319</div>
+          <div class="bar-prd">12,117</div>
+          <div><span class="cbadge mid">3.24</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">골반교정기<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:25%"></div></div>
+          <div class="bar-value">3,270</div>
+          <div class="badge kegel">72%</div>
+          <div class="bar-female">2,354</div>
+          <div class="bar-prd">4,588</div>
+          <div><span class="cbadge good">1.40</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">골반교정<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:28%"></div></div>
+          <div class="bar-value">3,620</div>
+          <div class="badge kegel">56%</div>
+          <div class="bar-female">2,027</div>
+          <div class="bar-prd">30,346</div>
+          <div><span class="cbadge mid">8.38</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">허벅지안쪽운동<span class="itag info">정보</span><span class="note">내전근 소비자어</span></div>
+          <div class="bar-track"><div class="bar-fill kegel" style="width:12%"></div></div>
+          <div class="bar-value">1,500</div>
+          <div class="badge kegel">52%</div>
+          <div class="bar-female">780</div>
+          <div class="bar-prd">7,184</div>
+          <div><span class="cbadge mid">4.79</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="evidence-group">
+      <div class="evidence-title step"><span class="dot"></span>스텝퍼 · 천국의계단 (유산소) <span class="cap">— 여성 키워드</span></div>
+      <div class="scroll-safe"><div class="barlist">
+        <div class="bar-row bar-head"><div>키워드</div><div></div><div class="c3">월 검색</div><div class="c4">여성</div><div class="c5">여성 검색수</div><div class="c6">상품수</div><div class="c7">경쟁도</div></div>
+        <div class="bar-row">
+          <div class="bar-label">천국의계단<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:100%"></div></div>
+          <div class="bar-value">44,180</div>
+          <div class="badge step">54%</div>
+          <div class="bar-female">23,857</div>
+          <div class="bar-prd">116,218</div>
+          <div><span class="cbadge good">2.63</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스텝퍼<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:85%"></div></div>
+          <div class="bar-value">37,530</div>
+          <div class="badge step">76%</div>
+          <div class="bar-female">28,523</div>
+          <div class="bar-prd">454,726</div>
+          <div><span class="cbadge bad">12.12</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스텝박스<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:28%"></div></div>
+          <div class="bar-value">12,360</div>
+          <div class="badge step">64%</div>
+          <div class="bar-female">7,910</div>
+          <div class="bar-prd">101,081</div>
+          <div><span class="cbadge mid">8.18</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">천국의계단가정용<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:27%"></div></div>
+          <div class="bar-value">11,950</div>
+          <div class="badge step">62%</div>
+          <div class="bar-female">7,409</div>
+          <div class="bar-prd">42,996</div>
+          <div><span class="cbadge mid">3.60</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">에어스텝퍼<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:26%"></div></div>
+          <div class="bar-value">11,510</div>
+          <div class="badge step">80%</div>
+          <div class="bar-female">9,208</div>
+          <div class="bar-prd">15,413</div>
+          <div><span class="cbadge good">1.34</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스탭퍼<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:26%"></div></div>
+          <div class="bar-value">11,400</div>
+          <div class="badge step">72%</div>
+          <div class="bar-female">8,208</div>
+          <div class="bar-prd">456,447</div>
+          <div><span class="cbadge bad">40.04</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">지압스텝퍼<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:22%"></div></div>
+          <div class="bar-value">9,550</div>
+          <div class="badge step">89%</div>
+          <div class="bar-female">8,500</div>
+          <div class="bar-prd">12,994</div>
+          <div><span class="cbadge good">1.36</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스텝밀<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:15%"></div></div>
+          <div class="bar-value">6,580</div>
+          <div class="badge step">59%</div>
+          <div class="bar-female">3,882</div>
+          <div class="bar-prd">20,220</div>
+          <div><span class="cbadge mid">3.07</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스텝퍼운동효과<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:14%"></div></div>
+          <div class="bar-value">6,170</div>
+          <div class="badge step">86%</div>
+          <div class="bar-female">5,306</div>
+          <div class="bar-prd">1,960</div>
+          <div><span class="cbadge good">0.32</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">가정용천국의계단<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:13%"></div></div>
+          <div class="bar-value">5,610</div>
+          <div class="badge step">69%</div>
+          <div class="bar-female">3,871</div>
+          <div class="bar-prd">42,226</div>
+          <div><span class="cbadge mid">7.53</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">스테퍼<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill step" style="width:10%"></div></div>
+          <div class="bar-value">4,460</div>
+          <div class="badge step">69%</div>
+          <div class="bar-female">3,077</div>
+          <div class="bar-prd">461,668</div>
+          <div><span class="cbadge bad">103.51</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="evidence-group">
+      <div class="evidence-title" style="color:var(--accent)"><span class="dot" style="background:var(--accent)"></span>홈트 · 제품 카테고리 <span class="cap">— 여성 키워드</span></div>
+      <div class="scroll-safe"><div class="barlist">
+        <div class="bar-row bar-head"><div>키워드</div><div></div><div class="c3">월 검색</div><div class="c4">여성</div><div class="c5">여성 검색수</div><div class="c6">상품수</div><div class="c7">경쟁도</div></div>
+        <div class="bar-row">
+          <div class="bar-label">홈트운동기구<span class="itag buy">구매</span><span class="note">우리 제품 카테고리</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div>
+          <div class="bar-value">15,100</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">63%</div>
+          <div class="bar-female">9,513</div>
+          <div class="bar-prd">491,427</div>
+          <div><span class="cbadge bad">32.54</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">홈트<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:29%;background:var(--accent)"></div></div>
+          <div class="bar-value">4,410</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">59%</div>
+          <div class="bar-female">2,602</div>
+          <div class="bar-prd">1,233,703</div>
+          <div><span class="cbadge bad">279.75</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">실내운동기구<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--accent)"></div></div>
+          <div class="bar-value">3,550</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">69%</div>
+          <div class="bar-female">2,450</div>
+          <div class="bar-prd">371,069</div>
+          <div><span class="cbadge bad">104.53</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">실내운동<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--accent)"></div></div>
+          <div class="bar-value">1,460</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">64%</div>
+          <div class="bar-female">934</div>
+          <div class="bar-prd">650,085</div>
+          <div><span class="cbadge bad">445.26</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">홈트기구<span class="itag buy">구매</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--accent)"></div></div>
+          <div class="bar-value">1,170</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">71%</div>
+          <div class="bar-female">831</div>
+          <div class="bar-prd">611,414</div>
+          <div><span class="cbadge bad">522.58</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">홈트추천<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:7%;background:var(--accent)"></div></div>
+          <div class="bar-value">1,050</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">75%</div>
+          <div class="bar-female">788</div>
+          <div class="bar-prd">1,233,703</div>
+          <div><span class="cbadge bad">1174.96</span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">홈트영상<span class="itag info">정보</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:7%;background:var(--accent)"></div></div>
+          <div class="bar-value">1,040</div>
+          <div class="badge" style="background:var(--accent-soft);color:var(--accent)">60%</div>
+          <div class="bar-female">624</div>
+          <div class="bar-prd">567</div>
+          <div><span class="cbadge good">0.55</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="evidence-group">
+      <div class="excluded-title">제외 — 남성 키워드</div>
+      <div class="chips">
+        <span class="chip"><b>스쿼트</b> 10,840 (여32)</span>
+        <span class="chip"><b>힙쓰러스트</b> 7,930 (여27)</span>
+        <span class="chip"><b>내전근</b> 6,860 (여21)</span>
+        <span class="chip"><b>하체운동</b> 2,660 (여25)</span>
+        <span class="chip"><b>하체운동기구</b> 4,600 (여29)</span>
+        <span class="chip"><b>홈짐</b> 3,870 (여14)</span>
+        <span class="chip"><b>홈트레이닝</b> 1,670 (여37)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 05 제품명 후보 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">05</span>
+      <h2>제품명 후보 <span class="h2sub">소구점 전달 · 발음 · 미투 회피</span></h2>
+    </div>
+
+    <div class="grouplabel">A. 라인 계열 — 메인 소구점 직결</div>
+    <div class="namegrid">
+      <div class="namecard hip"><div class="n">라인핏</div><div class="m">라인 + fit</div></div>
+      <div class="namecard hip"><div class="n">커브라인</div><div class="m">curve(곡선) + 라인</div></div>
+      <div class="namecard hip"><div class="n">슬림라인</div><div class="m">슬림 + 라인</div></div>
+      <div class="namecard hip"><div class="n">코어라인</div><div class="m">코어 + 라인</div></div>
+    </div>
+
+    <div class="grouplabel">B. 입체·볼륨 계열 — 360도 입체</div>
+    <div class="namegrid">
+      <div class="namecard step"><div class="n">볼륨핏</div><div class="m">volume(볼륨) + fit</div></div>
+      <div class="namecard step"><div class="n">라운드핏</div><div class="m">round(둥근) + fit</div></div>
+    </div>
+
+    <div class="grouplabel">C. 애플·피치 계열 — 애플힙 여성 92%</div>
+    <div class="namegrid">
+      <div class="namecard accent"><div class="n">애플라인</div><div class="m">애플힙 + 라인</div></div>
+      <div class="namecard accent"><div class="n">피치라인</div><div class="m">peach + 라인</div></div>
+      <div class="namecard accent"><div class="n">애플핏</div><div class="m">애플힙 + fit</div></div>
+      <div class="namecard accent"><div class="n">피치핏</div><div class="m">peach + fit</div></div>
+    </div>
+
+    <div class="grouplabel">D. 힙 선행 계열 — 슬라힙 구조 회피</div>
+    <div class="namegrid">
+      <div class="namecard kegel"><div class="n">힙라인</div><div class="m">힙 + 라인 (가장 직관적)</div></div>
+      <div class="namecard kegel"><div class="n">힙쉐이퍼</div><div class="m">힙 + shaper</div></div>
+    </div>
+
+    <div class="grouplabel">E. 홈 계열 — 홈트 키워드 시너지</div>
+    <div class="namegrid">
+      <div class="namecard mute"><div class="n">홈라인</div><div class="m">홈 + 하체라인</div></div>
+      <div class="namecard mute"><div class="n">홈핏</div><div class="m">홈 + fit</div></div>
+      <div class="namecard mute"><div class="n">홈슬림</div><div class="m">홈 + 슬림</div></div>
+      <div class="namecard mute"><div class="n">홈쉐이퍼</div><div class="m">홈 + shaper</div></div>
+      <div class="namecard mute"><div class="n">홈코어</div><div class="m">홈 + 코어(속근육)</div></div>
+    </div>
+
+    <div class="grouplabel">F. 기능 서술형 — 자세 + 효익 + 기구</div>
+    <div class="namegrid">
+      <div class="namecard step"><div class="n">스모볼륨쉐이퍼</div><div class="m">스모 + 볼륨 + 만들어주는</div></div>
+      <div class="namecard step"><div class="n">스모라인쉐이퍼</div><div class="m">스모 + 하체라인 + 쉐이퍼</div></div>
+      <div class="namecard step"><div class="n">스모힙쉐이퍼</div><div class="m">스모 + 힙 + 쉐이퍼</div></div>
+      <div class="namecard step"><div class="n">스모커브쉐이퍼</div><div class="m">스모 + 곡선 + 쉐이퍼</div></div>
+      <div class="namecard step"><div class="n">스모슬림쉐이퍼</div><div class="m">스모 + 슬림 + 쉐이퍼</div></div>
+    </div>
+
+  </div>
+
+  <!-- 06 상품명 조합안 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="secnum">06</span>
+      <h2>상품명 조합안 <span class="h2sub">50자 이내 · 키워드 중복 금지 · 앞쪽 가중치</span></h2>
+    </div>
+
+    <div class="grouplabel">키워드 후보 — 구매의도 × 여성비율 × 경쟁도</div>
+    <div class="scroll-safe"><div class="comp-wrap">
+      <table class="comp">
+        <tr><th>키워드</th><th>월 검색</th><th>여성</th><th>경쟁도</th></tr>
+        <tr><td><span class="ax kegel"></span>골반교정기</td><td>3,270</td><td>72%</td><td><span class="cbadge good">1.40</span></td></tr>
+        <tr><td><span class="ax kegel"></span>케겔운동기구</td><td>7,690</td><td>49%</td><td><span class="cbadge mid">5.42</span></td></tr>
+        <tr><td><span class="ax home"></span>홈트운동기구</td><td>15,100</td><td>63%</td><td><span class="cbadge bad">32.5</span></td></tr>
+        <tr><td><span class="ax kegel"></span>골반운동기구</td><td>1,000</td><td>66%</td><td><span class="cbadge bad">27.7</span></td></tr>
+        <tr><td><span class="ax hip"></span>엉덩이운동기구</td><td>900</td><td>63%</td><td><span class="cbadge bad">35.7</span></td></tr>
+        <tr><td><span class="ax home"></span>실내운동기구</td><td>3,550</td><td>69%</td><td><span class="cbadge bad">104.5</span></td></tr>
+      </table>
+    </div></div>
+    <div class="warnbox" style="margin-top:12px">
+      <b>제외(남성어)</b> — 하체운동(여 25%) · 내전근(여 21%) · 힙쓰러스트(여 27%) · 홈짐(여 14%) · 스텝퍼(브랜드 희석)
+    </div>
+
+    <div class="grouplabel">조합안 20개 <span style="font-weight:600;color:var(--sub)">— 효익 구 + 키워드 구 구조</span></div>
+    <div class="titlelist">
+      <div class="titlerow"><div class="no">1</div><div class="tt">[제품명] 360도 하체라인 케겔운동기구 골반 힙업</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">2</div><div class="tt">[제품명] 밀고 모으는 케겔 골반 힙업 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">3</div><div class="tt">[제품명] 옆라인까지 채우는 힙업 케겔 골반 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">4</div><div class="tt">[제품명] 골반교정기 케겔운동 입체 애플힙 홈트</div><div class="anchor">골반교정기</div></div>
+      <div class="titlerow"><div class="no">5</div><div class="tt">[제품명] 골반저근 강화 케겔운동기구 힙업 애플힙</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">6</div><div class="tt">[제품명] 입체 애플힙 만드는 케겔 골반 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">7</div><div class="tt">[제품명] 여성 케겔운동기구 골반저근 힙업 홈트</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">8</div><div class="tt">[제품명] 360도 하체라인 골반교정기 케겔 힙업</div><div class="anchor">골반교정기</div></div>
+      <div class="titlerow"><div class="no">9</div><div class="tt">[제품명] 밀고 모으는 입체 애플힙 케겔운동기구 골반</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">10</div><div class="tt">[제품명] 옆라인까지 잡는 케겔 골반 힙업 홈트 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">11</div><div class="tt">[제품명] 슬림 탄탄 하체라인 케겔운동기구 골반 힙업</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">12</div><div class="tt">[제품명] 밀고 모으는 골반교정기 케겔운동 힙업 애플힙</div><div class="anchor">골반교정기</div></div>
+      <div class="titlerow"><div class="no">13</div><div class="tt">[제품명] 360도 입체 애플힙 케겔 골반 힙업 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">14</div><div class="tt">[제품명] 케겔운동기구 골반저근 힙업 360도 하체라인 홈트</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">15</div><div class="tt">[제품명] 옆라인까지 채우는 골반교정기 케겔 애플힙</div><div class="anchor">골반교정기</div></div>
+      <div class="titlerow"><div class="no">16</div><div class="tt">[제품명] 슬림 탄탄 애플힙 케겔운동기구 골반저근 여성</div><div class="anchor">케겔운동기구</div></div>
+      <div class="titlerow"><div class="no">17</div><div class="tt">[제품명] 밀고 모으는 여성 케겔 골반 힙업 운동기구 홈트</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">18</div><div class="tt">[제품명] 입체 애플힙 골반교정기 케겔운동 힙업 홈트</div><div class="anchor">골반교정기</div></div>
+      <div class="titlerow"><div class="no">19</div><div class="tt">[제품명] 골반저근 강화 밀고 모으는 케겔 힙업 운동기구</div><div class="anchor">접미 공유</div></div>
+      <div class="titlerow"><div class="no">20</div><div class="tt">[제품명] 360도 하체라인 완성 케겔운동기구 골반 애플힙</div><div class="anchor">케겔운동기구</div></div>
+    </div>
+
+    <div class="warnbox">
+      ① <b>앵커는 하나만 붙여쓰기</b> — 완전일치가 조합 매칭보다 유리하므로 최우선 키워드 1개만 붙여쓰고 나머지는 띄어쓴다.<br>
+      ② <b>효익 구는 소구점에서만</b> 뽑는다 — 360도 하체라인 · 슬림 탄탄 · 입체 애플힙 · 옆라인까지 · 밀고 모으는 · 골반저근 강화.<br>
+      ③ <b>제품명이 "힙"을 품으면</b> 상품명의 힙업은 중복이므로 뺀다.<br>
+      ④ <b>시간·간편 후크</b>(예: "하루 5분")는 제품 스펙 확정 후 추가한다.
+    </div>
+  </div>
+
+  <p class="footnote">데이터 출처: 네이버 검색광고 API(검색량) · 데이터랩 쇼핑인사이트(성별) · 아이템스카우트(상품수). 구매/정보 = 구매의도 분류.</p>
+</div>
+</body>
+</html>
