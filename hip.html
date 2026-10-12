@@ -1,0 +1,540 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>힙 선행 제품명 후보</title>
+<style>/* ── 구획 안내 (2026-10-03 갈무리) ── 아래로 갈수록 나중에 확정된 값이 앞 값을 덮는다. 고칠 땐 맨 아래 구획부터 본다.
+   ①~⑥   v2~v5 기본 부품(바탕·유리 판·남색 판·튜브·젤리·기한 지남)        — 일부 값은 ⑮~ 가 덮음
+   ⑦~⑭   v6 상세 창 부품(남색 덩어리 카드·시트·구슬·지금 칸·타일·입력·고르기·오류)
+   ⑮~㉒   v7 확정(무채색 바탕·판, 회색 판 위 흰 카드, 남색 그림자, 지연 칸, 네모 하나, 구분선, 줄 올림, 붙은 칸, 누름)
+   .t-dark 다크 테마(examples/scm-v7-dark) — <body class="t-bg t-dark">
+   ㉓~㉖   10-02 AI 사무실 모바일(작은 막대·밝은 중요 카드·아바타 구슬·대화 말풍선)
+   보고서 전용은 toss-report.css, 움직임은 rally.js */
+/* /디자인 — 토스다운 시각 질감 조각 모음 (2026-10-01 SCM 시안 v2~v7 실측에서 뽑음 · 맨 아래 ⑮~ 가 v7 확정분으로 앞 값을 덮는다)
+   쓰는 법: 원본 화면의 스타일 맨 뒤에 붙이고, 원본 요소에 아래 class 를 덧붙이거나
+   원본 선택자에 같은 값을 옮겨 적는다. 배치·문구는 건드리지 않는다.
+   ⛔ 이 파일의 값은 사용자가 "좋다"고 확인한 것만 남겼다. 바꾸면 SKILL.md §2 표도 같이 고친다. */
+
+:root {
+  /* 바탕 · 글자 — 사용자 지정 연회색 바탕 */
+  --t-bg: #F0F2F6;
+  --t-card: #FFFFFF;
+  --t-fill: #F2F4F6;
+  --t-t1: #191F28; --t-t2: #4E5968; --t-t3: #8B95A1; --t-t4: #B0B8C1;
+  /* 파랑 한 색 — 옅은 것부터 진한 것까지 */
+  --t-blue-50: #E8F3FF; --t-blue-100: #C9E2FF; --t-blue-200: #9CC8FF; --t-blue-300: #6AA6FF;
+  --t-blue-500: #3182F6; --t-blue-600: #2468DC; --t-blue-700: #1B64DA;
+  /* 보조 — 의미 있을 때만 */
+  --t-red: #F04452; --t-red-50: #FFEEEF; --t-coral: #FF6B7A;
+  /* 남색 판 */
+  --t-navy: #0A1020;
+  /* 글꼴 — 맥 기본(Apple SD Gothic Neo) 굵기 800. Pretendard·Toss Product Sans 는 "기존이 더 두껍고 낫다"로 반려(10-01) */
+  --t-font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --t-strong: 800;
+  --t-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* ① 바탕 — 연회색 위 옅은 파랑·라벤더 공기 (fixed 층) */
+.t-bg { background: var(--t-bg); }
+.t-bg::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42% 36% at 4% 0%, rgba(49,130,246,.20), transparent 70%),
+    radial-gradient(36% 34% at 98% 14%, rgba(150,130,255,.16), transparent 70%),
+    radial-gradient(50% 40% at 50% 108%, rgba(80,170,255,.16), transparent 70%); }
+
+/* ② 두꺼운 밝은 유리 판 — 덩어리감 = 왼쪽 위 흰 빛줄 + 아래 짙은 줄 + 안쪽 아래 그늘 + 바깥 2px 단 + 넓은 푸른 그림자 */
+.t-glass { border-radius: 30px;
+  background: linear-gradient(160deg, rgba(255,255,255,.88) 0%, rgba(240,246,255,.62) 55%, rgba(228,238,255,.55) 100%);
+  backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255,255,255,1),
+    inset -1px -2px 0 rgba(110,140,210,.22),
+    inset 0 -18px 30px -22px rgba(70,120,230,.28),
+    0 2px 0 rgba(165,185,230,.45),
+    0 22px 46px -22px rgba(40,80,190,.30); }
+/* 작은 유리 덩어리(목록 묶음 카드) */
+.t-glass-sm { border-radius: 16px; background: linear-gradient(165deg, rgba(255,255,255,.95), rgba(242,247,255,.8));
+  box-shadow: inset 1px 1px 0 #fff, inset 0 -1.5px 0 rgba(110,140,210,.2), 0 1.5px 0 rgba(165,185,230,.4), 0 10px 22px -14px rgba(40,80,190,.3); }
+.t-glass-sm.is-late { background: linear-gradient(165deg, rgba(255,246,247,.98), rgba(255,232,236,.85));
+  box-shadow: inset 1px 1px 0 #fff, inset 0 -1.5px 0 rgba(230,80,100,.22), 0 1.5px 0 rgba(240,170,180,.45), 0 10px 22px -14px rgba(240,68,82,.38); }
+
+/* ③ 남색 판 — 사용자가 가장 좋아한 조각. 화면당 한 곳 */
+.t-navy { position: relative; overflow: hidden; isolation: isolate; border-radius: 28px; color: #fff;
+  background:
+    radial-gradient(110% 120% at 12% 130%, rgba(49,130,246,.55) 0%, rgba(49,130,246,0) 55%),
+    radial-gradient(60% 80% at 92% -10%, rgba(80,120,255,.22) 0%, rgba(80,120,255,0) 60%),
+    var(--t-navy);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -2px 0 rgba(120,170,255,.38), 0 24px 48px -28px rgba(10,30,80,.55); }
+.t-navy::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .5; pointer-events: none;   /* 아래에서 사라지는 격자 */
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 44px 44px; -webkit-mask-image: linear-gradient(to top, #000, transparent 85%); mask-image: linear-gradient(to top, #000, transparent 85%); }
+.t-navy::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .16; mix-blend-mode: overlay; pointer-events: none;   /* 결(노이즈) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* 남색 판 안 두꺼운 어두운 유리 카드 */
+.t-navy-card { border-radius: 20px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(160deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.05) 55%, rgba(120,160,255,.06) 100%);
+  box-shadow: inset 1.5px 1.5px 0 rgba(255,255,255,.22), inset -1px -2px 0 rgba(0,0,0,.25), inset 0 -16px 28px -20px rgba(120,170,255,.35),
+    0 2px 0 rgba(0,0,0,.25), 0 18px 34px -20px rgba(0,10,40,.8); }
+
+/* ④ 유광 튜브 막대 */
+.t-tube { height: 9px; border-radius: 99px; overflow: hidden; background: linear-gradient(180deg, rgba(190,205,230,.55), rgba(225,233,245,.8));
+  box-shadow: inset 0 1.5px 2px rgba(40,70,140,.18), inset 0 -1px 0 rgba(255,255,255,.9); }
+.t-tube > i { display: block; height: 100%; border-radius: 99px; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, #9CC8FF 0%, #4C8DFF 45%, #2F6FE6 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 1px rgba(10,50,150,.35), 0 3px 8px -2px rgba(49,130,246,.55); }
+.t-tube > i.is-late { background: linear-gradient(180deg, #FFB3BA 0%, #FF6B7A 45%, #E2384B 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 1px rgba(140,10,30,.3), 0 3px 8px -2px rgba(240,68,82,.55); }
+.t-tube > i::after { content: ""; position: absolute; inset: 0; width: 40%;   /* 반짝임 — 밝은 바탕에서만 */
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent); animation: t-shine 3.2s ease-in-out infinite; }
+@keyframes t-shine { from { transform: translateX(-100%); } to { transform: translateX(334%); } }
+
+/* ⑤ 젤리 칩 · 젤리 버튼 */
+.t-chip { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 6px; padding: 2px 8px; color: var(--t-t2);
+  background: linear-gradient(180deg, #FFFFFF, #EAF0F8); box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(120,140,180,.25), 0 1px 3px rgba(40,70,140,.12); }
+.t-chip.is-blue { background: linear-gradient(180deg, #E3F0FF, #C7DFFF); color: #1B64DA;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(49,130,246,.25), 0 2px 6px -2px rgba(49,130,246,.4); }
+.t-chip.is-red { background: linear-gradient(180deg, #FFE6E9, #FFC9CF); color: #D92D41;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(220,60,80,.25), 0 2px 6px -2px rgba(240,68,82,.45); }
+.t-btn { font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 10px 16px; cursor: pointer; color: #fff;
+  background: linear-gradient(180deg, #6AA6FF 0%, #3182F6 55%, #2468DC 100%);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,40,140,.28), 0 8px 16px -8px rgba(49,130,246,.75);
+  transition: transform .15s var(--t-ease); }
+.t-btn:active { transform: scale(.96); opacity: .9; }   /* Rally touch down: scale .96 · opacity .8 근사 */
+
+/* ⑥ 기한 지난 칸 — 아래에서 올라오는 산호빛 + 아래 가장자리 선 */
+.t-late-glow { position: relative; background: radial-gradient(120% 70% at 50% 125%, rgba(255,107,122,.20), transparent 70%); }
+.t-late-glow::after { content: ""; position: absolute; left: 14%; right: 14%; bottom: 0; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(240,68,82,.75), transparent); }
+
+@media (prefers-reduced-motion: reduce) { .t-tube > i::after { animation: none; } .t-btn { transition: none; } }
+
+/* ───── v6 에서 추가 (2026-10-01) — 오른쪽 상세 창 · 할 일 카드 ───── */
+
+/* ⑦ 남색 덩어리 카드 — 가장 중요한 지점(기한 지난 할 일 · 상세 창 맨 위 '지금 할 일')에만. 밝은 판 안에 섞어 쓴다 */
+.t-card-hot { color: #fff; border-radius: 20px;
+  background: radial-gradient(120% 90% at 10% 120%, rgba(49,130,246,.55), transparent 60%), radial-gradient(70% 70% at 95% -10%, rgba(110,120,255,.28), transparent 60%), #0B1428;
+  box-shadow: inset 1.5px 1.5px 0 rgba(255,255,255,.18), inset -1px -2px 0 rgba(0,0,0,.35), inset 0 -2px 0 rgba(130,180,255,.45), 0 2px 0 rgba(10,20,50,.35), 0 18px 34px -16px rgba(20,50,140,.55); }
+.t-card-hot.is-late { background: radial-gradient(120% 90% at 10% 120%, rgba(255,92,108,.45), transparent 60%), radial-gradient(70% 70% at 95% -10%, rgba(110,120,255,.22), transparent 60%), #141226;
+  box-shadow: inset 1.5px 1.5px 0 rgba(255,255,255,.16), inset 0 -2px 0 rgba(255,140,150,.5), 0 2px 0 rgba(10,20,50,.3), 0 16px 30px -16px rgba(140,30,60,.5); }
+
+/* ⑧ 옆 창(시트) 바탕 · 흐린 유리 머리 */
+.t-sheet { background: radial-gradient(70% 40% at 100% 0%, rgba(49,130,246,.12), transparent 70%), radial-gradient(60% 30% at 0% 100%, rgba(150,130,255,.10), transparent 70%), linear-gradient(180deg, #F7F9FC, #EEF2F8);
+  box-shadow: -24px 0 60px -20px rgba(20,50,140,.28), inset 1px 0 0 rgba(255,255,255,.9); }
+.t-sheet-head { position: sticky; top: 0; z-index: 3; background: rgba(247,249,252,.78); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: 0 1px 0 rgba(150,170,210,.25), 0 10px 24px -20px rgba(20,50,140,.35); }
+/* 열림 = bezier.expo · 닫힘 = 그 거울(되감기) */
+.t-sheet-motion { transition: transform .32s cubic-bezier(.7,0,.84,0); }
+.is-open .t-sheet-motion { transition: transform .55s cubic-bezier(.16,1,.3,1); }
+
+/* ⑨ 유광 구슬 — 단계 표시 동그라미. 기본(흰) · 완료(하늘) · 지금(파랑) · 지연(산호) */
+.t-orb { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #8B95A1;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #EEF2F8 60%, #DCE4F0 100%); box-shadow: inset 0 -1.5px 2px rgba(80,100,150,.25), 0 2px 4px -1px rgba(40,70,140,.25); }
+.t-orb.is-done { color: #fff; background: radial-gradient(circle at 35% 30%, #CFE3FF 0%, #8DB8F5 55%, #6A9BE6 100%); box-shadow: inset 0 -1.5px 2px rgba(20,60,150,.3), 0 2px 5px -1px rgba(49,130,246,.4); }
+.t-orb.is-now { color: #fff; background: radial-gradient(circle at 35% 30%, #A9CEFF 0%, #3182F6 55%, #1F5FD0 100%); box-shadow: inset 0 -2px 3px rgba(0,30,110,.35), 0 0 0 4px rgba(49,130,246,.14), 0 4px 10px -2px rgba(49,130,246,.6); }
+.t-orb.is-late { color: #fff; background: radial-gradient(circle at 35% 30%, #FFC2C8 0%, #FF5C6C 55%, #D9283C 100%); box-shadow: inset 0 -2px 3px rgba(120,0,20,.3), 0 0 0 4px rgba(240,68,82,.14), 0 4px 10px -2px rgba(240,68,82,.6); }
+.t-orb-line { height: 2px; background: #D3DDEE; } .t-orb-line.is-done { background: linear-gradient(90deg, #9CC8FF, #6AA6FF); }
+
+/* ⑩ 지금 단계 칸 — 유리 덩어리 + 테두리 빛(처리 필요 = 파랑 · 지연 = 산호) */
+.t-glass-sm.is-now { box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 0 0 1.5px rgba(49,130,246,.35), inset 0 -16px 26px -20px rgba(49,130,246,.25), 0 1.5px 0 rgba(165,185,230,.4), 0 16px 30px -16px rgba(49,130,246,.35); }
+.t-glass-sm.is-now.is-late { background: linear-gradient(170deg, rgba(255,244,246,.98), rgba(255,255,255,.92) 40%);
+  box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 0 0 1.5px rgba(240,68,82,.30), inset 0 -16px 26px -20px rgba(240,68,82,.22), 0 1.5px 0 rgba(240,170,180,.45), 0 16px 30px -16px rgba(240,68,82,.35); }
+.t-glass-sm.is-lock { background: rgba(255,255,255,.4); box-shadow: inset 0 0 0 1.5px rgba(150,170,210,.3); }
+
+/* ⑪ 숫자 타일 — 표 칸 대신 따로 떨어진 젤리 타일(간격 8px) */
+.t-tiles { display: grid; gap: 8px; }
+.t-tile { border-radius: 14px; padding: 10px 14px; background: linear-gradient(170deg, #FFFFFF, #F1F5FC);
+  box-shadow: inset 1px 1px 0 #fff, inset 0 -1.5px 0 rgba(110,140,210,.18), 0 4px 10px -6px rgba(40,80,190,.25); }
+.t-tile small { display: block; font-size: 11.5px; color: var(--t-t3); } .t-tile b { display: block; margin-top: 3px; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.t-tile b.is-late { color: var(--t-red); }
+
+/* ⑫ 입력 — 안으로 파인 유리 · 초점 = 파랑 테두리 + 옅은 파랑 번짐 */
+.t-field { border: 0; border-radius: 14px; outline: 0; font: inherit; color: var(--t-t1); padding: 10px 14px; background: linear-gradient(180deg, #F3F6FB, #FFFFFF);
+  box-shadow: inset 0 2px 4px rgba(30,60,140,.10), inset 0 0 0 1.5px rgba(150,175,225,.45), 0 1px 0 #fff; transition: box-shadow .2s var(--t-ease); }
+.t-field:focus, .t-field:focus-within { box-shadow: inset 0 2px 4px rgba(30,60,140,.08), inset 0 0 0 2px #3182F6, 0 0 0 5px rgba(49,130,246,.15); }
+
+/* ⑬ 고르기 — 젤리 버튼, 고른 것은 파랑 젤리 */
+.t-seg { font: inherit; border: 0; border-radius: 14px; padding: 9px 12px; cursor: pointer; color: var(--t-t2); background: linear-gradient(180deg, #FFFFFF, #EEF2F8);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1.5px 0 rgba(120,140,180,.22), 0 3px 8px -4px rgba(40,70,140,.25); }
+.t-seg.is-on { color: #1B64DA; font-weight: 700; background: linear-gradient(180deg, #E8F3FF, #C9E2FF);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1.5px rgba(49,130,246,.55), inset 0 -2px 0 rgba(49,130,246,.25), 0 6px 14px -6px rgba(49,130,246,.5); }
+
+/* ⑭ 오류 — Rally 원문 오류 바탕 rgba(240,68,82,.25) 를 옅게 깐 젤리 */
+.t-warn { border-radius: 12px; padding: 9px 12px; font-size: 12.5px; font-weight: 600; color: #C8233A;
+  background: linear-gradient(180deg, rgba(240,68,82,.12), rgba(240,68,82,.25)); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(240,68,82,.25); }
+
+/* ───── v7 확정분 (2026-10-01) — 아래가 위 값을 덮는다 ───── */
+/* 사용자 지적: "빨간 테마 안에 뜬금없이 파랗다", "대놓고 나 파래", "소녀소녀한 핑크핑크", "배경에 묻힌다", "음각 같다"
+   → 바탕·판은 무채색, 파랑은 강조 점에만, 그림자는 검정 대신 남색(toss.im 실측 rgba(2,32,71,.05)~(3,31,63,.12)) */
+
+:root {
+  --t-sh-card:    0 1px 2px rgba(2,32,71,.05), 0 4px 12px -2px rgba(2,32,71,.06), 0 16px 32px -14px rgba(3,31,63,.12);
+  --t-sh-card-up: 0 1px 2px rgba(2,32,71,.05), 0 8px 18px -4px rgba(2,32,71,.08), 0 26px 44px -18px rgba(3,31,63,.18);
+  --t-sh-plate:   0 1px 2px rgba(2,32,71,.04), 0 10px 30px -12px rgba(3,31,63,.10);
+  --t-line:       rgba(2,32,71,.10);      /* 구분선 · 지연 칸 안은 rgba(240,68,82,.18~.20) */
+  --t-plate:      #F2F4F7;                /* toss.im 회색 큰 판 실측 */
+}
+
+/* ⑮ 바탕 — 파랑·라벤더 공기 걷음(v7 "대놓고 파래"). 연회색 단색 */
+.t-bg::before { display: none; }
+
+/* ⑯ 큰 판 — 무채색 솟은 유리. 세 구역 모두 같은 조리법 */
+.t-glass { background: linear-gradient(160deg, rgba(255,255,255,.92) 0%, rgba(250,250,252,.8) 55%, rgba(244,245,248,.78) 100%);
+  box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 -1px 0 rgba(2,32,71,.05), var(--t-sh-plate); }
+/* 회색 판 — 흰 카드를 올려놓는 판. ⛔ 움푹한 쟁반(안쪽 그늘)은 "음각"으로 반려 → 다른 판과 같은 솟은 조리법, 색만 한 톤 회색.
+   ⛔ 페이지 바탕(#F0F2F6)과 같은 #F2F4F7 단색이면 판 테두리가 사라짐 → 그라디언트 + 바깥 그림자로 경계 */
+.t-plate { border-radius: 28px; background: linear-gradient(160deg, #F8F9FB 0%, #F1F3F6 55%, #ECEFF3 100%);
+  box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 -1px 0 rgba(2,32,71,.05), var(--t-sh-plate); }
+/* 흰 카드 — 회색 판 위에서 떠 보이게 순백 + 남색 세 겹 그림자. 흰 판 위에 흰 카드면 "배경에 묻힘" */
+.t-glass-sm, .t-card { border-radius: 16px; background: #FFFFFF;
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(2,32,71,.05), var(--t-sh-card); transition: box-shadow .4s cubic-bezier(.16,1,.3,1); }
+.t-card:hover { box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(2,32,71,.06), var(--t-sh-card-up); }
+
+/* ⑰ 지연 칸 — 칸 안 강조색 = 칸의 상태 색. 빨간 칸 안에 파랑 금지.
+   ⛔ 바탕·입력·고르기·보조 버튼까지 분홍으로 칠하면 "핑크핑크" → 빨강은 상태 칩 · 칸 테두리 한 줄 · 주 버튼 · 숫자에만 */
+.t-glass-sm.is-late, .t-card.is-late { background: #FFFFFF;
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(240,68,82,.16), var(--t-sh-card); }
+/* 목록 칸 위쪽에만 옅은 빨강 기운(위 → 아래로 흐려짐). 칸 전체 분홍 아님 */
+.t-late-tint { background: linear-gradient(180deg, rgba(255,236,239,.85) 0%, rgba(255,246,247,.55) 38%, rgba(255,255,255,0) 75%); }
+.t-glass-sm.is-now.is-late { background: linear-gradient(170deg, #FFFFFF, #F8F9FB);
+  box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 0 0 1.5px rgba(240,68,82,.42), inset 0 -16px 26px -20px rgba(20,30,60,.10), 0 1.5px 0 rgba(170,178,192,.4), 0 16px 30px -16px rgba(20,30,60,.22); }
+.is-late .t-field, .t-field.is-late-ctx { background: linear-gradient(180deg, #F4F5F7, #FFFFFF);
+  box-shadow: inset 0 2px 4px rgba(20,30,60,.08), inset 0 0 0 1.5px rgba(170,178,192,.5), 0 1px 0 #fff; }
+.is-late .t-field:focus, .is-late .t-field:focus-within { box-shadow: inset 0 2px 4px rgba(20,30,60,.06), inset 0 0 0 2px #191F28, 0 0 0 5px rgba(25,31,40,.08); }
+.is-late .t-seg.is-on { color: #191F28; background: linear-gradient(180deg, #FFFFFF, #F4F5F7);
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 2px #191F28, 0 6px 14px -6px rgba(20,30,60,.3); }
+.is-late .t-btn { background: linear-gradient(180deg, #F2505E 0%, #E5323F 60%, #CC2436 100%);   /* 밝은 분홍 윗부분 없는 깊은 빨강 */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 0 rgba(100,0,15,.3), 0 8px 16px -9px rgba(200,30,50,.6); }
+
+/* ⑱ 입력 — 겉 상자에만 유리. ⛔ 안쪽 <input> 에도 바탕·테두리가 남으면 "네모 안에 네모" — 상태별(지연 등) 규칙의 우선순위까지 확인 */
+.t-field input, .t-field textarea { background: transparent !important; box-shadow: none !important; border: 0 !important; outline: 0 !important; }
+
+/* ⑲ 구분선 — 제목 아래 · 목록 줄 사이 · 제품명 아래. 좌우 12~16px 들임, 글자와 선 사이 10px 이상 띄움 */
+.t-divide { position: relative; padding-bottom: 12px; }
+.t-divide::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 1px; background: var(--t-line); pointer-events: none; }
+.is-late .t-divide::after, .t-divide.is-late::after { background: rgba(240,68,82,.20); }
+
+/* ⑳ 목록 줄 마우스 올림 — 회색이 확 깔리면 "반짝" → 아주 옅은 색이 .35초에 스며듦 */
+.t-row { transition: background-color .35s cubic-bezier(.16,1,.3,1); }
+.t-row:hover { background: rgba(2,32,71,.035); } .is-late .t-row:hover { background: rgba(240,68,82,.05); }
+.t-row.is-sel { background: rgba(49,130,246,.06); } .is-late .t-row.is-sel { background: rgba(240,68,82,.08); }
+
+/* ㉑ 붙어 있는 칸(한 줄 표) 마우스 올림 — 칸째 뜨지 않고 위에서 빛이 차오름 + 안쪽만 3px(rally.js lift inner) */
+.t-cell { position: relative; }
+.t-cell::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .45s cubic-bezier(.16,1,.3,1);
+  background: radial-gradient(120% 70% at 50% 0%, rgba(49,130,246,.10), transparent 70%), linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,0) 60%);
+  box-shadow: inset 0 0 0 1px rgba(49,130,246,.10); }
+.t-cell.is-late::before { background: radial-gradient(120% 70% at 50% 0%, rgba(240,68,82,.12), transparent 70%), linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0) 60%);
+  box-shadow: inset 0 0 0 1px rgba(240,68,82,.12); }
+.t-cell:hover::before, .t-cell.is-on::before { opacity: 1; }
+.t-cell > * { position: relative; z-index: 1; }
+
+/* ㉒ 누름 — CSS 로 하지 않는다(rally.js press). 아래는 GSAP 없을 때만 쓰는 대체값 */
+.t-btn { transition: none; } .t-btn:active { transform: none; opacity: 1; }
+@media (scripting: none) { .t-btn:active { transform: scale(.96); } }
+
+/* ───── 다크 테마 (2026-10-01 · examples/scm-v7-dark 확정분) — <body class="t-bg t-dark"> ─────
+   근거: Simplicity 페이지 바탕 실측 + 세션 썸네일 실측(references/simplicity_thumbs.md)
+   ⛔ 반려된 것: 무채색 회색 다크(#121212 위 #242426) "이런 느낌이 안 난다" · 바탕 단색 "이거 별로" · 밝은 파랑 덩어리 여러 장 "시끄러움"(자가 점검) */
+.t-dark {
+  --t-t1:#E7F4FD; --t-t2:#C3DCEA; --t-t3:rgba(195,220,234,.58); --t-t4:rgba(195,220,234,.38);
+  --d-rim:rgba(195,220,234,.35); --d-line:rgba(195,220,234,.09);
+  --d-floor:0 30px 50px -22px rgba(0,0,0,.85), 0 12px 24px -12px rgba(2,8,20,.7);
+  color: var(--t-t1);
+}
+/* 페이지 바탕 — 단색 금지. 위 가운데 조명 + 좌우 위아래 푸른 기운(양쪽 고르게) + 아래 바닥 띠 + 가장자리 어둠. 스크롤해도 조명 고정 */
+.t-bg.t-dark, .t-dark.t-page, .t-dark .t-page { background:
+  radial-gradient(60% 38% at 50% 0%, rgba(58,66,84,.55) 0%, rgba(40,45,58,.25) 45%, transparent 75%),
+  radial-gradient(45% 30% at 82% 30%, rgba(60,95,150,.22) 0%, transparent 70%),
+  radial-gradient(42% 32% at 10% 26%, rgba(75,95,160,.26) 0%, transparent 70%),
+  radial-gradient(45% 34% at 12% 68%, rgba(80,92,130,.26) 0%, transparent 70%),
+  radial-gradient(80% 30% at 50% 100%, rgba(44,48,58,.55) 0%, transparent 70%),
+  radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.6) 100%),
+  linear-gradient(180deg, #17191E 0%, #121318 45%, #0F1013 100%); background-attachment: fixed; }
+.t-bg.t-dark::before { display: none; }
+/* 큰 판 — 남색 유리 + 판 안 한 점 빛(썸네일 64%·30%) + 위쪽 가장자리 빛 + 후광(판 사이 틈을 밝힘) + 바닥 그림자 */
+.t-dark .t-glass, .t-dark .t-plate {
+  background: radial-gradient(55% 60% at 64% 30%, rgba(104,155,200,.20), transparent 75%), linear-gradient(180deg, rgba(20,40,70,.92) 0%, rgba(14,28,46,.94) 55%, rgba(12,24,40,.96) 100%);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: inset 0 1px 0 var(--d-rim), inset 0 0 0 1px rgba(195,220,234,.08), inset 0 -14px 28px -14px rgba(2,8,20,.6),
+    0 0 90px -10px rgba(80,105,150,.28), 0 0 34px -6px rgba(104,155,200,.16), 0 34px 50px -24px rgba(0,0,0,.95); }
+/* 카드 — 한 단계 밝은 남색 유리 */
+.t-dark .t-card, .t-dark .t-glass-sm { background: linear-gradient(180deg, rgba(34,62,100,.72), rgba(19,34,56,.78));
+  box-shadow: inset 0 1px 0 rgba(195,220,234,.30), inset 0 0 0 1px rgba(195,220,234,.08), 0 14px 26px -12px rgba(0,0,0,.75); }
+.t-dark .t-card:hover { box-shadow: inset 0 1px 0 rgba(195,220,234,.42), inset 0 0 0 1px rgba(195,220,234,.14), 0 22px 36px -14px rgba(0,0,0,.85), 0 0 24px -8px rgba(104,155,200,.35); }
+/* 가장 중요한 카드 — 깊은 남색 + 아래에서 차오르는 파란 빛 + 아래 가장자리 빛줄 + 115° 반사 띠 3초 호흡 */
+.t-dark .t-card-hot { position: relative; overflow: hidden;
+  background: radial-gradient(80% 55% at 50% 108%, rgba(90,160,255,.95) 0%, rgba(50,110,230,.55) 30%, rgba(30,70,170,.18) 58%, transparent 75%),
+              radial-gradient(60% 50% at 85% -10%, rgba(104,155,200,.18), transparent 70%), linear-gradient(180deg, #0D1A30 0%, #0A1528 100%);
+  box-shadow: inset 0 1px 0 rgba(195,220,234,.30), inset 0 0 0 1px rgba(120,170,255,.16), inset 0 -2px 0 rgba(150,200,255,.95), inset 0 -10px 18px -10px rgba(120,180,255,.6),
+    0 26px 40px -16px rgba(0,0,0,.9), 0 10px 30px -10px rgba(50,120,230,.35); }
+.t-dark .t-card-hot::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, rgba(171,205,237,.14) 50%, transparent 62%); mix-blend-mode: screen; animation: t-glint 3s ease-in-out infinite; }
+.t-dark .t-card-hot > * { position: relative; }
+@keyframes t-glint { 0% { opacity: .62 } 43% { opacity: 1 } 67%, 100% { opacity: .62 } }
+/* 주 버튼 — 파랑 유리(썸네일 'Button' 막대 단면 #4D97CC→#2864A8, 림 #C3DCEA) */
+.t-dark .t-btn { background: linear-gradient(180deg, #4D97CC 0%, #3178B6 45%, #2864A8 100%); color: #E7F4FD;
+  box-shadow: inset 0 1.5px 0 rgba(195,220,234,.9), inset 0 -2px 6px rgba(19,40,70,.55), 0 8px 18px -6px rgba(2,8,20,.7), 0 0 18px rgba(60,130,200,.25); }
+.t-dark .t-card-hot .t-btn { background: linear-gradient(180deg, #FFFFFF, #E2EFFA); color: #173A66; box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(40,100,168,.25), 0 8px 16px -8px rgba(2,8,20,.7); }
+/* 막대 — 깊게 파인 남색 홈 + 유광 파랑 채움 */
+.t-dark .t-tube { background: #0B1726; box-shadow: inset 0 1px 3px rgba(2,8,20,.85), inset 0 -1px 0 rgba(195,220,234,.06); }
+.t-dark .t-tube > i { background: linear-gradient(180deg, #6FB0DD 0%, #3B86C0 45%, #2864A8 100%); }
+/* 칩 · 입력 · 구분선 */
+.t-dark .t-chip { background: rgba(195,220,234,.08); color: var(--t-t2); box-shadow: inset 0 1px 0 rgba(195,220,234,.16), inset 0 0 0 1px rgba(195,220,234,.08); }
+.t-dark .t-chip.is-red { background: rgba(255,92,108,.18); color: #FF9AA5; box-shadow: inset 0 1px 0 rgba(255,190,200,.25), inset 0 0 0 1px rgba(255,92,108,.3); }
+.t-dark .t-field { background: #081320; color: var(--t-t1); box-shadow: inset 0 2px 4px rgba(0,0,0,.7), inset 0 0 0 1px rgba(195,220,234,.12), 0 1px 0 rgba(195,220,234,.06); }
+.t-dark .t-divide::after { background: var(--d-line); }
+.t-dark .t-row:hover { background: rgba(195,220,234,.05); } .t-dark .t-row.is-sel { background: rgba(104,155,200,.16); }
+/* 지연(빨간) 칸 — 와인빛 한 톤. ⛔ 위 빨강 → 아래 남색으로 섞지 않음("애매하게 남색이 붙어있어") · 안쪽 상자·버튼도 따뜻한 무채색 */
+.t-dark .is-late:is(.t-card, .t-glass-sm, .t-late-cell) { background: radial-gradient(90% 40% at 50% 0%, rgba(255,92,108,.16), transparent 75%), linear-gradient(180deg, #2A161D 0%, #22141A 100%);
+  box-shadow: inset 0 1px 0 rgba(255,170,180,.35), inset 0 0 0 1.5px rgba(255,92,108,.5), 0 16px 30px -12px rgba(0,0,0,.8); }
+.t-dark .is-late .t-seg, .t-dark .is-late .t-tile { background: rgba(255,225,230,.05); color: rgba(255,232,236,.82); box-shadow: inset 0 1px 0 rgba(255,210,216,.12), inset 0 0 0 1px rgba(255,190,200,.10); }
+.t-dark .is-late .t-seg.is-on { background: rgba(255,225,230,.10); color: #fff; box-shadow: inset 0 0 0 2px rgba(255,236,240,.9); }
+.t-dark .is-late .t-field { background: #140A0E; box-shadow: inset 0 2px 4px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,190,200,.12); }
+.t-dark .t-late-tint { background: linear-gradient(180deg, rgba(255,92,108,.20) 0%, rgba(255,92,108,.07) 38%, rgba(255,92,108,0) 75%); }
+.t-dark .is-late b.is-late, .t-dark b.is-late, .t-dark .t-tile b.is-late { color: #FF6B7A; }
+@media (prefers-reduced-motion: reduce) { .t-dark .t-card-hot::before { animation: none; } }
+
+/* ───── 2026-10-02 추가 — AI 사무실 모바일(examples/office-mobile) 확정분 ───── */
+/* ㉓ 작은 막대(흰 칩 안 7px 이하) — 튜브 홈(위 그늘 + 아래 흰 빛줄)은 아래쪽이 흰 칩과 섞여 홈만 얇아 보인다("바 높이가 안 맞아")
+      → 작은 막대는 단색 홈 + 위 그늘 한 줄. 채움은 튜브 그대로 */
+.t-tube.is-sm { height: 7px; background: rgba(2,32,71,.10); box-shadow: inset 0 1px 1.5px rgba(2,32,71,.14); }
+.t-dark .t-tube.is-sm { background: #0B1726; box-shadow: inset 0 1px 3px rgba(2,8,20,.85); }
+
+/* ㉔ 밝은 '가장 중요한 카드' — 라이트에서 남색 덩어리가 싫을 때("어두운색 안 했으면, 밝게"). 흰→옅은 하늘 + 오른쪽 위 한 점 빛
+      + 아래 가장자리 하늘 빛줄 + 아래로 사라지는 옅은 격자 + 흰 반사 띠 3초 호흡(글자 뒤, z-index:-1) */
+.t-card-bright { position: relative; overflow: hidden; isolation: isolate; border-radius: 16px; color: var(--t-t1);
+  background: radial-gradient(70% 90% at 92% -10%, rgba(156,200,255,.38), transparent 65%), linear-gradient(180deg, #FFFFFF 0%, #F7FAFF 60%, #EEF4FD 100%);
+  box-shadow: inset 1.5px 1.5px 0 #fff, inset 0 0 0 1px rgba(49,130,246,.10), inset 0 -2px 0 rgba(106,166,255,.55), inset 0 -14px 22px -14px rgba(106,166,255,.30), 0 2px 0 rgba(170,190,225,.35), 0 20px 36px -16px rgba(30,80,170,.30); }
+.t-card-bright::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .7;
+  background-image: linear-gradient(rgba(2,32,71,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(2,32,71,.035) 1px, transparent 1px); background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 90%); mask-image: linear-gradient(to top, #000, transparent 90%); }
+.t-card-bright::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.7) 50%, transparent 62%); animation: t-glint 3s ease-in-out infinite; }
+
+/* ㉕ 아바타 구슬 — 이모지·아이콘을 맨으로 두지 않고 유광 구슬 안에(목록이 "심심"할 때 가장 효과 큼). 진행 중은 파랑 구슬 */
+.t-ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 17px; flex: none;
+  background: radial-gradient(circle at 35% 28%, #FFFFFF 0%, #F1F4F9 55%, #DCE3EE 100%);
+  box-shadow: inset 0 -2px 3px rgba(80,100,150,.22), inset 0 1.5px 0 #fff, 0 3px 8px -2px rgba(40,70,140,.28); }
+.t-ava.is-now { background: radial-gradient(circle at 35% 28%, #E8F3FF 0%, #B9D7FF 55%, #7FB0F5 100%);
+  box-shadow: inset 0 -2px 3px rgba(20,60,150,.3), inset 0 1.5px 0 rgba(255,255,255,.9), 0 0 0 4px rgba(49,130,246,.12), 0 4px 12px -2px rgba(49,130,246,.55); }
+
+/* ㉖ 대화 — 상대 대답 = 흰 카드 한 덩어리(안의 도구·코드는 회색 판), 내 말 = 옅은 파랑 젤리 말풍선(진한 파랑 글자).
+      진하게 칠한 파랑 말풍선 금지(파랑은 점). 진행 중 대답은 진행 중 카드와 같은 조리법. 메시지 사이 선 대신 간격 12px */
+.t-bubble-ai { border-radius: 20px; padding: 14px 16px 12px; background: linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 60%, #F8FAFC 100%);
+  box-shadow: inset 0 1.5px 0 #fff, inset 0 0 0 1px rgba(2,32,71,.05), inset 0 -2px 0 rgba(2,32,71,.05), var(--t-sh-card); }
+.t-bubble-ai.is-now { background: radial-gradient(90% 60% at 50% 115%, rgba(49,130,246,.16), transparent 70%), linear-gradient(180deg, #FFFFFF 0%, #F6FAFF 100%);
+  box-shadow: inset 0 1.5px 0 #fff, inset 0 0 0 1.5px rgba(49,130,246,.35), inset 0 -2px 0 rgba(49,130,246,.3), 0 16px 30px -16px rgba(49,130,246,.4), var(--t-sh-card); }
+.t-bubble-me { display: inline-block; max-width: 86%; border-radius: 20px 20px 6px 20px; padding: 11px 15px; font-weight: 600; color: #1B64DA;
+  background: linear-gradient(180deg, #EEF6FF 0%, #D6E8FF 100%);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(49,130,246,.18), inset 0 -2px 0 rgba(49,130,246,.22), 0 8px 18px -10px rgba(49,130,246,.55); }
+.t-bubble-ai .t-sub { border-radius: 14px; background: linear-gradient(180deg, #F6F7F9, #EEF1F5); box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(2,32,71,.05); }
+.t-dark .t-bubble-ai { background: radial-gradient(60% 50% at 80% 0%, rgba(104,155,200,.14), transparent 75%), linear-gradient(180deg, rgba(34,62,100,.72), rgba(19,34,56,.80));
+  box-shadow: inset 0 1px 0 rgba(195,220,234,.30), inset 0 0 0 1px rgba(195,220,234,.08), 0 14px 26px -12px rgba(0,0,0,.75); }
+.t-dark .t-bubble-me { color: #E7F4FD; background: linear-gradient(180deg, rgba(77,151,204,.42), rgba(40,100,168,.36));
+  box-shadow: inset 0 1px 0 rgba(195,220,234,.55), inset 0 0 0 1px rgba(111,176,221,.28), 0 10px 20px -10px rgba(0,0,0,.7); }
+.t-dark .t-bubble-ai .t-sub { background: rgba(8,19,32,.7); box-shadow: inset 0 2px 4px rgba(0,0,0,.5), inset 0 0 0 1px rgba(195,220,234,.07); }
+
+@media (prefers-reduced-motion: reduce) { .t-card-bright::after { animation: none; } }
+
+/* ── 보고서 한 장 — 아티팩트 틀 + /디자인 질감 ───────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--t-font);color:var(--t-t1);background:var(--t-bg);
+  padding:28px 20px 56px;line-height:1.55;-webkit-font-smoothing:antialiased;font-size:14px}
+.page{max-width:1000px;margin:0 auto;background:#fff;padding:36px 42px 30px;border-radius:20px;
+  box-shadow:var(--t-sh-card);position:relative;overflow:hidden}
+.page::before{content:"";position:absolute;inset:0 0 auto;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent)}
+header{border-bottom:2px solid var(--t-line);padding-bottom:14px;margin-bottom:18px}
+.eyebrow{font-size:11.5px;font-weight:var(--t-strong);letter-spacing:.12em;color:var(--t-blue-500)}
+h1{font-size:23px;font-weight:var(--t-strong);letter-spacing:-.03em;margin-top:7px}
+.sub{font-size:12.5px;color:var(--t-t3);margin-top:7px}
+/* 소제목 — 젤리 번호 칩 + 제목, 번호는 counter 로 자동(10-08 「제목 시안 A」 사용자 선택. 이전: 왼쪽 파랑 3px 세로선) */
+.page{counter-reset:sec}
+h2{counter-increment:sec;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:17px;font-weight:var(--t-strong);letter-spacing:-.03em;margin:38px 0 14px;line-height:1.4}
+h2::before{content:counter(sec,decimal-leading-zero);display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;flex:none;padding:0;border-radius:8px;font-size:11.5px;font-weight:var(--t-strong);letter-spacing:0;
+  color:var(--t-blue-600);background:linear-gradient(180deg,#F4F9FF,#D9E9FF);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(49,130,246,.25),0 2px 6px -2px rgba(49,130,246,.4)}
+h2.no-num{counter-increment:none}
+h2.no-num::before{content:none}
+.part{counter-set:sec 0}   /* 큰 구분 띠(Ⅰ·Ⅱ)마다 번호를 01부터 다시(10-08) */
+.lead{font-size:12px;color:var(--t-t3);margin:0 0 11px 14px;line-height:1.7}
+.lead b{color:var(--t-t2);font-weight:700}
+/* 토글 — 고른 것은 외곽선 없이 옅은 파랑 + 빛줄 + 그림자 */
+.toggle{display:inline-flex;gap:4px;padding:5px;margin:4px 0 16px;border-radius:15px;
+  background:linear-gradient(180deg,#F8F9FB,#ECEFF3);box-shadow:var(--t-sh-plate)}
+.toggle label{font-size:13px;font-weight:var(--t-strong);letter-spacing:-.01em;padding:9px 18px;
+  border-radius:11px;cursor:pointer;color:var(--t-t3);user-select:none;
+  transition:color .25s var(--t-ease),box-shadow .3s var(--t-ease)}
+.toggle label:hover{color:var(--t-t2)}
+.toggle label:active{transform:scale(.97)}
+#ta,#tb{display:none}
+#ta:checked ~ .toggle label[for=ta],#tb:checked ~ .toggle label[for=tb]{
+  color:var(--t-blue-600);background:linear-gradient(180deg,#F4F9FF,var(--t-blue-50));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 2px rgba(2,32,71,.05),
+    0 6px 14px -6px rgba(49,130,246,.35)}
+/* 표 — 테두리 상자 대신 가로선, 숫자 고정폭 */
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin-bottom:4px}
+th{font-size:11px;font-weight:var(--t-strong);color:var(--t-t3);letter-spacing:.02em;
+  padding:9px 11px;text-align:right;white-space:nowrap;
+  background:linear-gradient(180deg,#F8F9FB,#EEF1F6);border-bottom:1px solid var(--t-line)}
+th:first-child{text-align:left;border-radius:10px 0 0 0}
+th:last-child{border-radius:0 10px 0 0}
+td{padding:9px 11px;text-align:right;white-space:nowrap;color:var(--t-t2);
+  font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(2,32,71,.055)}
+td:first-child{text-align:left;font-weight:700;color:var(--t-t1)}
+tbody tr{transition:background .35s var(--t-ease)}
+tbody tr:hover{background:rgba(2,32,71,.035)}
+td.pt{font-weight:var(--t-strong);color:var(--t-blue-600)}
+td.tg{font-weight:var(--t-strong);color:var(--t-t1)}
+td.zero{color:var(--t-t4)}
+td small{display:block;font-weight:400;color:var(--t-t4);font-size:10.5px;white-space:normal;margin-top:1px}
+tr.tot td{background:linear-gradient(180deg,#F8F9FB,#F1F4F8);font-weight:var(--t-strong);
+  color:var(--t-t1);border-top:1px solid var(--t-line);border-bottom:0}
+tr.tot td:first-child{border-radius:0 0 0 10px}
+tr.tot td:last-child{border-radius:0 0 10px 0}
+tr.big td{font-size:15px;font-weight:var(--t-strong);color:var(--t-t1)}
+tr.big td.pt{font-size:17px}
+tr.plan td{background:var(--t-blue-50);color:var(--t-blue-600)}
+tr.plan td:first-child{color:var(--t-blue-600)}
+.rate{white-space:nowrap}
+.rate .t-tube{display:inline-block;width:42px;vertical-align:middle;margin-right:8px}
+.rate b{font-weight:700;color:var(--t-t2)}
+.t-chip{font-size:10.5px;padding:3px 9px;font-weight:700}
+/* 차트 */
+.chart{margin:2px 0 14px;padding:16px 12px 8px;border-radius:16px;background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(2,32,71,.06),var(--t-sh-card);position:relative;overflow:hidden}
+.chart::before{content:"";position:absolute;inset:0 0 auto;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent)}
+.lg{font-size:11px;color:var(--t-t3);padding:4px 10px 2px}
+.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;
+  vertical-align:-1px;background:var(--t-blue-500)}
+.lg i.hollow{background:#fff;box-shadow:inset 0 0 0 2px var(--t-blue-300)}
+.lg span{margin-right:16px}
+.foot{font-size:11.5px;color:var(--t-t4);margin-top:22px;padding-top:14px;
+  border-top:1px solid var(--t-line);line-height:1.8}
+.foot b{color:var(--t-t3);font-weight:700}
+ul.pts{margin:0 0 0 14px;padding:0;list-style:none;font-size:12.5px;color:var(--t-t3);line-height:1.85}
+ul.pts li{padding-left:13px;position:relative}
+ul.pts li::before{content:"";position:absolute;left:0;top:10px;width:4px;height:4px;border-radius:50%;
+  background:var(--t-blue-200)}
+ul.pts b{color:var(--t-t2);font-weight:700}
+/* 토글로 갈리는 덩어리 */
+.pa,.pb{display:none}
+#ta:checked ~ .pa,#tb:checked ~ .pb{display:revert}
+@media(max-width:780px){body{padding:16px 10px 40px}.page{padding:24px 16px 22px;border-radius:16px}
+  .rate .t-tube{display:none}table{font-size:12px}td,th{padding:8px 7px}}
+/* 번호 — 젤리 칩 조리법(흰→연회색 · 안쪽 빛줄 · 아래 가장자리) */
+.no{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;
+  margin-right:9px;border-radius:7px;font-size:10.5px;font-weight:var(--t-strong);font-style:normal;
+  color:var(--t-t3);background:linear-gradient(180deg,#FFFFFF,#EAEFF6);vertical-align:-3px;
+  box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(120,140,180,.25),0 1px 3px rgba(40,70,140,.12)}
+tr.plan .no{color:var(--t-blue-600);background:linear-gradient(180deg,#F4F9FF,#D9E9FF);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(49,130,246,.25),
+    0 2px 5px -2px rgba(49,130,246,.4)}
+/* 열 격자 고정 — 표마다 폭이 달라 보이지 않게 (c2·c4·c5 로 열 수를 맞춘다) */
+table{table-layout:fixed}
+.c2 th:nth-child(1),.c2 td:nth-child(1){width:80%}
+.c2 th:nth-child(2),.c2 td:nth-child(2){width:20%}
+.c4 th:nth-child(1),.c4 td:nth-child(1){width:40%}
+.c4 th:nth-child(2),.c4 td:nth-child(2){width:20%}
+.c4 th:nth-child(3),.c4 td:nth-child(3){width:20%}
+.c4 th:nth-child(4),.c4 td:nth-child(4){width:20%}
+.c5 th:nth-child(1),.c5 td:nth-child(1){width:28%}
+.c5 th:nth-child(n+2),.c5 td:nth-child(n+2){width:18%}
+/* 드릴다운 — 묶음 줄을 누르면 그 아래로 채널이 펼쳐진다(글자는 가만, 높이만) */
+tr.dr{cursor:pointer}
+tr.dr td:first-child{user-select:none}
+.caret{display:inline-block;width:0;height:0;margin-right:9px;vertical-align:1px;
+  border-left:5px solid var(--t-t4);border-top:4px solid transparent;border-bottom:4px solid transparent;
+  transition:transform .35s var(--t-ease)}
+tr.dr.is-open .caret{transform:rotate(90deg);border-left-color:var(--t-blue-500)}
+tr.dr.is-open td{color:var(--t-blue-600)}
+tr.dw > td{padding:0;border-bottom:0}
+tr.dw:not(.is-open) > td{border-bottom:1px solid rgba(2,32,71,.055)}
+.dwrap{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.6,0,0,.6)}
+tr.dw.is-open .dwrap{max-height:1800px}
+table.inner{margin:0;background:linear-gradient(180deg,#F8F9FB,#F2F4F8);
+  box-shadow:inset 0 1px 2px rgba(2,32,71,.05)}
+table.inner td{border-bottom:1px solid rgba(2,32,71,.05);font-size:12.5px;padding:8px 11px}
+table.inner tr:last-child td{border-bottom:0}
+table.inner td:first-child{padding-left:34px;font-weight:400;color:var(--t-t2)}
+table.inner tr:hover{background:rgba(2,32,71,.03)}
+
+/* 큰 구분 띠 — 문서가 Ⅰ·Ⅱ 묶음으로 나뉠 때(10-08 글로벌 마케팅 방향성). <div class="part"><span class="pn">Ⅰ</span><div><b>제목</b><small>부제</small></div></div> */
+.part{display:flex;align-items:center;gap:14px;margin:52px 0 6px;padding:16px 20px;border-radius:16px;
+  background:linear-gradient(180deg,#F8F9FB,#ECEFF3);box-shadow:var(--t-sh-plate)}
+.part .pn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:11px;
+  font-size:15px;font-weight:var(--t-strong);color:var(--t-blue-600);background:linear-gradient(180deg,#F4F9FF,#D9E9FF);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(49,130,246,.25),0 2px 6px -2px rgba(49,130,246,.4)}
+.part b{display:block;font-size:18px;font-weight:var(--t-strong);letter-spacing:-.03em}
+.part small{display:block;font-size:11.5px;color:var(--t-t3);margin-top:2px}
+.part+h2{margin-top:22px}
+
+
+.nm td{text-align:left;white-space:normal}
+.nm th{text-align:left}
+.nm th:nth-child(1),.nm td:nth-child(1){width:18%}
+.nm th:nth-child(2),.nm td:nth-child(2){width:34%}
+.nm th:nth-child(3),.nm td:nth-child(3){width:16%}
+.nm th:nth-child(4),.nm td:nth-child(4){width:16%}
+.nm th:nth-child(5),.nm td:nth-child(5){width:16%}
+.nm td:first-child{font-size:15px;letter-spacing:-.01em}
+.crit th:nth-child(1),.crit td:nth-child(1){width:18%}
+.crit th:nth-child(2),.crit td:nth-child(2){width:56%}
+.crit th:nth-child(3),.crit td:nth-child(3){width:26%}
+.crit td:nth-child(2){line-height:1.65}
+h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
+.nm .t-chip{white-space:nowrap}
+@media (max-width:620px){
+  .nm:not(.crit) th:nth-child(3),.nm:not(.crit) td:nth-child(3){display:none}
+  .nm:not(.crit) th:nth-child(1),.nm:not(.crit) td:nth-child(1){width:27%}
+  .nm:not(.crit) th:nth-child(2),.nm:not(.crit) td:nth-child(2){width:33%}
+  .nm:not(.crit) th:nth-child(4),.nm:not(.crit) td:nth-child(4){width:20%}
+  .nm:not(.crit) th:nth-child(5),.nm:not(.crit) td:nth-child(5){width:20%}
+  .nm td,.nm th{padding:8px 5px}
+  .nm td:first-child{font-size:14px}
+  .nm .t-chip{font-size:10px;padding:3px 6px}
+}
+</style></head><body class="t-bg">
+<div class="page">
+  <header>
+    <div class="eyebrow">제품명 고민</div>
+    <h1>힙 선행 제품명 후보</h1>
+    <div class="sub">하체·힙·골반 여성 운동기구 · 후보 55개 · 2026-10-12</div>
+  </header>
+
+<h2>발음 기준</h2>
+<p class="lead">힙부터와 힙스터를 나란히 놓고 찾은 기준. 둘 다 [힙뿌터]·[힙쓰터]로 된소리가 나므로 된소리 여부는 기준이 아니다.</p>
+<table class="nm crit"><thead><tr><th>기준</th><th>내용</th><th>예시</th></tr></thead><tbody>
+<tr><td>입 모양</td><td>'힙'의 ㅂ은 입술소리라 바로 뒤에 ㅂ·ㅍ·ㅁ이 오면 입술을 연달아 닫는다. ㅅ·ㅋ·ㅌ·ㄱ은 소리 나는 자리가 달라 바로 이어진다.</td><td>힙부터 ↔ 힙스터</td></tr>
+<tr><td>박자</td><td>둘째 글자 모음이 ㅡ(스·크·트·그)이면 약하게 지나가 두 박자처럼 들린다. ㅜ·ㅏ처럼 또렷한 모음은 세 박자로 끊긴다.</td><td>[힙스·터] ↔ [힙·부·터]</td></tr>
+<tr><td>단어 인식</td><td>조사로 끝나면 이름이 아니라 끊긴 문장으로 들린다.</td><td>힙부터 → '힙부터 ~'</td></tr>
+</tbody></table>
+
+<h2>힙스터형 이름 <span class="cnt">22개</span></h2>
+<p class="lead">둘째 글자가 스·크·트·그로 시작하는 이름. 힙스터와 같은 꼴이다.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙스</td><td>hips(엉덩이)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스타</td><td>star</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스라인</td><td>hips + 라인</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스핏</td><td>hips + fit</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙글램</td><td>glam(볼륨 있는 몸매)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙크러쉬</td><td>crush(반할 만한 힙)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙그루브</td><td>groove(곡선·리듬)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스퀴즈</td><td>squeeze(모으기)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙그립</td><td>grip(조여 잡는 힘)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스테이</td><td>stay(유지·습관)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스텝</td><td>step(왕복·유산소)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스프링</td><td>spring(스프링 저항)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스윙</td><td>swing(왕복)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스핀</td><td>spin</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙트랙</td><td>track(운동 궤적)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙트위스트</td><td>twist</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙크로스</td><td>cross(밀기·모으기 교차)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스토리</td><td>story(힙 + 이야기)</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스쿨</td><td>school(홈트 수업)</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙스튜디오</td><td>studio</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙클럽</td><td>club</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙드림</td><td>dream</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr></tbody></table>
+
+<h2>라인·볼륨 이름 <span class="cnt">10개</span></h2>
+<p class="lead">메인 소구점인 하체 라인·애플힙과 바로 이어지는 이름.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙커브</td><td>curve(곡선)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙피치</td><td>peach(애플힙)</td><td>라인·볼륨</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙컨투어</td><td>contour(윤곽)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙핏</td><td>fit</td><td>라인·볼륨</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙컷</td><td>cut(선명한 라인)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙피크</td><td>peak(볼륨 정점)</td><td>라인·볼륨</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙탑</td><td>top(올라붙은 힙)</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙퀸</td><td>queen</td><td>라인·볼륨</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙플러스</td><td>plus(볼륨 더하기)</td><td>라인·볼륨</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙퍼펙트</td><td>perfect</td><td>라인·볼륨</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr></tbody></table>
+
+<h2>케겔·코어 이름 <span class="cnt">6개</span></h2>
+<p class="lead">모으기 동작의 케겔·속근육 효과를 담은 이름.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙케겔</td><td>케겔(골반저근)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙코어</td><td>core(속근육)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙케어</td><td>care</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙클로</td><td>close(모으기)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙킵</td><td>keep(유지·습관)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙키</td><td>key(골반이 핵심)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr></tbody></table>
+
+<h2>동작 이름 <span class="cnt">9개</span></h2>
+<p class="lead">밀기·모으기·왕복 동작에서 나온 이름.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙킥</td><td>kick(밀기)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙펌프</td><td>pump(반복 자극)</td><td>동작</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙펄스</td><td>pulse(왕복 리듬)</td><td>동작</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙템포</td><td>tempo(유산소 리듬)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙트윈</td><td>twin(밀기·모으기 두 방향)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙투</td><td>two(두 방향)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙턴</td><td>turn(왕복)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙플렉스</td><td>flex(힘주기)</td><td>동작</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙팝</td><td>pop(톡 올라온 힙)</td><td>동작</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr></tbody></table>
+
+<h2>브랜드 꼴 이름 <span class="cnt">5개</span></h2>
+<p class="lead">효과보다 브랜드 느낌을 앞세운 이름.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙포인트</td><td>point</td><td>브랜드 꼴</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙포즈</td><td>pose(사용 자세)</td><td>브랜드 꼴</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙클래스</td><td>class(홈트 수업)</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr><tr><td>힙타임</td><td>time(하루 루틴)</td><td>브랜드 꼴</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙플랜</td><td>plan</td><td>브랜드 꼴</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td></tr></tbody></table>
+
+<h2>기존 후보 <span class="cnt">3개</span></h2>
+<p class="lead">이전에 검토한 힙 선행 이름.</p>
+<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th></tr></thead><tbody><tr><td>힙부터</td><td>힙 + 부터</td><td>기존</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙라인</td><td>힙 + 라인</td><td>기존</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr><tr><td>힙쉐이퍼</td><td>힙 + shaper</td><td>기존</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td></tr></tbody></table>
+
+  <div class="foot">입 모양·박자 칸은 둘째 글자의 첫소리·모음으로 분류.</div>
+</div>
+</body></html>
