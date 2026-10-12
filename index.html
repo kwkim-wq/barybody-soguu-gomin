@@ -507,16 +507,13 @@ table.inner tr:hover{background:rgba(2,32,71,.03)}
 /* 표 */
 .tb td{text-align:left;white-space:normal;vertical-align:middle}
 .tb th{text-align:left}
-.t-prob th:nth-child(1),.t-prob td:nth-child(1),.t-ap th:nth-child(1),.t-ap td:nth-child(1),
+.t-prob th:nth-child(1),.t-prob td:nth-child(1),
 .t-ru th:nth-child(1),.t-ru td:nth-child(1){width:22%}
 .t-prob td:nth-child(2){font-size:14px;font-weight:700;color:var(--t-t1)}
-.t-ap td{padding-top:15px;padding-bottom:15px}
 .ap-t{font-size:16px;font-weight:800;letter-spacing:-.02em;line-height:1.45}
 .ap-t span{font-size:13px;font-weight:700;color:var(--t-t3)}
 .ap-t.hip{color:#8E2A50}.ap-t.kegel{color:#3F318A}.ap-t.step{color:#1D5750}.ap-t.mute{color:var(--t-t1)}
 .ap-d{font-size:12.5px;color:var(--t-t2);margin-top:5px;line-height:1.65;font-weight:400}
-tr.main .ap-t{font-size:18px}
-tr.main td{background:linear-gradient(180deg,rgba(179,67,106,.06),rgba(179,67,106,0))}
 .t-kw th:nth-child(1),.t-kw td:nth-child(1){width:40%}
 .t-kw th:nth-child(n+2),.t-kw td:nth-child(n+2){width:20%;text-align:right}
 .t-kw td:nth-child(2),.t-kw td:nth-child(3){font-variant-numeric:tabular-nums}
@@ -540,28 +537,40 @@ tr.main td{background:linear-gradient(180deg,rgba(179,67,106,.06),rgba(179,67,10
   background:linear-gradient(160deg,#F8F9FB 0%,#F1F3F6 55%,#ECEFF3 100%);
   box-shadow:inset 1.5px 1.5px 0 #fff,inset 0 -1px 0 rgba(2,32,71,.05),0 1px 2px rgba(2,32,71,.04)}
 .note b{color:var(--t-t1)}
-/* 키워드 연결 — 회색 판 위 흰 카드 셋 */
-.pls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;border-radius:20px;
+/* 키워드 연결 — 회색 판 위 흰 카드 셋, 축은 유광 구슬로 */
+.pls,.aps{padding:12px;border-radius:20px;
   background:linear-gradient(160deg,#F8F9FB 0%,#F1F3F6 55%,#ECEFF3 100%);
   box-shadow:inset 1.5px 1.5px 0 #fff,inset 0 -1px 0 rgba(2,32,71,.05),0 1px 2px rgba(2,32,71,.04),0 10px 30px -12px rgba(3,31,63,.10)}
-.pl{position:relative;background:#fff;border-radius:16px;padding:20px 20px 16px;
+.pls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pl,.apc{position:relative;background:#fff;border-radius:16px;
   box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(2,32,71,.05),var(--t-sh-card);
   transition:box-shadow .4s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
-.pl:hover{box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(2,32,71,.06),var(--t-sh-card-up);transform:translateY(-4px)}
-.pl::before{content:"";position:absolute;left:20px;right:20px;top:0;height:3px;border-radius:0 0 3px 3px}
-.pl.hip::before{background:linear-gradient(90deg,#D06A8F,var(--hip))}
-.pl.kegel::before{background:linear-gradient(90deg,#7F6FD0,var(--kegel))}
-.pl.step::before{background:linear-gradient(90deg,#4FA79D,var(--step))}
-.pl-k{font-size:11px;font-weight:800;color:var(--t-t3);letter-spacing:.04em}
-.pl-t{font-size:24px;font-weight:800;letter-spacing:-.03em;margin:4px 0 0}
-.pl.hip .pl-t{color:var(--hip)}.pl.kegel .pl-t{color:var(--kegel)}.pl.step .pl-t{color:var(--step)}
-.pl-s{font-size:12.5px;color:var(--t-t3);margin-top:2px}
-.pl ul{list-style:none;margin:14px 0 0;padding:0}
-.pl li{font-size:12.5px;color:var(--t-t2);padding:10px 0;border-top:1px solid rgba(2,32,71,.08);line-height:1.6}
-.pl li i{font-style:normal;color:var(--t-t4);margin:0 5px}
-.pl li b{color:var(--t-t1);font-weight:800}
+.pl:hover,.apc:hover{box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(2,32,71,.06),var(--t-sh-card-up);transform:translateY(-4px)}
+.pl{padding:20px 20px 8px}
+.pl-head{display:flex;align-items:center;gap:12px}
+.orb{display:block;flex:none;width:30px;height:30px;border-radius:50%;position:relative}
+.orb::after{content:"";position:absolute;left:22%;top:12%;width:42%;height:26%;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0))}
+.orb.hip{background:radial-gradient(circle at 38% 30%,#FFC2D6 0%,#D86A92 45%,#8E2A50 100%);box-shadow:0 4px 10px -3px rgba(179,67,106,.6)}
+.orb.kegel{background:radial-gradient(circle at 38% 30%,#DCD3FF 0%,#7F6FD0 45%,#3F318A 100%);box-shadow:0 4px 10px -3px rgba(91,74,158,.6)}
+.orb.step{background:radial-gradient(circle at 38% 30%,#C4F2EA 0%,#4FA79D 45%,#1D5750 100%);box-shadow:0 4px 10px -3px rgba(44,122,114,.6)}
+.pl-k{font-size:11px;font-weight:800;color:var(--t-t3);letter-spacing:.02em}
+.pl-t{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.25}
+.pl.hip .pl-t{color:#8E2A50}.pl.kegel .pl-t{color:#3F318A}.pl.step .pl-t{color:#1D5750}
+.pl-s{font-size:12.5px;color:var(--t-t3);margin:10px 0 0}
+.pl ul{list-style:none;margin:12px 0 0;padding:0}
+.pl li{padding:11px 0;border-top:1px solid rgba(2,32,71,.08);line-height:1.5}
+.pl li span{display:block;font-size:11.5px;color:var(--t-t3)}
+.pl li b{display:block;font-size:13.5px;color:var(--t-t1);font-weight:800;margin-top:2px}
+/* 소구점 — 메인 한 장 + 나머지 셋 */
+.aps-sub{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.apc{padding:18px 20px 18px}
+.apc .ap-t{margin-top:12px}
+.apc.main{padding:24px 26px 22px}
+.apc.main .ap-t{font-size:21px}
+.apc.main .ap-d{font-size:13.5px}
 @media (max-width:780px){
-  .pls{grid-template-columns:1fr}
+  .pls,.aps-sub{grid-template-columns:1fr}
   .hero{padding:26px 20px 22px}
   .t-kw th:nth-child(1),.t-kw td:nth-child(1){width:46%}
   .t-kw th:nth-child(n+2),.t-kw td:nth-child(n+2){width:18%}
@@ -569,7 +578,7 @@ tr.main td{background:linear-gradient(180deg,rgba(179,67,106,.06),rgba(179,67,10
   .t-tt th:nth-child(3),.t-tt td:nth-child(3){display:none}
   .t-tt td:nth-child(2){width:87%}
 }
-@media (prefers-reduced-motion:reduce){.pl{transition:none}.pl:hover{transform:none}}
+@media (prefers-reduced-motion:reduce){.pl,.apc{transition:none}.pl:hover,.apc:hover{transform:none}}
 </style>
 </head>
 <body class="t-bg">
@@ -597,14 +606,14 @@ tr.main td{background:linear-gradient(180deg,rgba(179,67,106,.06),rgba(179,67,10
 <table class="tb t-prob"><thead><tr><th>축</th><th>문제</th></tr></thead><tbody><tr><td><span class="ax-chip hip">힙</span></td><td>엉덩이가 밋밋하다</td></tr><tr><td><span class="ax-chip hip">힙</span></td><td>다리·골반 라인이 예쁘지 않다</td></tr><tr><td><span class="ax-chip kegel">케겔</span></td><td>코어·골반저근이 약하다</td></tr><tr><td><span class="ax-chip kegel">케겔</span></td><td>요통·요실금이 있다</td></tr><tr><td><span class="ax-chip step">유산소</span></td><td>살이 잘 안 빠진다</td></tr><tr><td><span class="ax-chip step">유산소</span></td><td>유산소 할 시간이 없다</td></tr></tbody></table>
 
 <h2>키워드 연결</h2>
-<div class="pls"><div class="pl kegel"><div class="pl-k">안으로 모으기 · 건강</div><div class="pl-t">케겔</div>
-<div class="pl-s">골반저근 · 코어 건강</div><ul><li><span>약한 코어·골반저근</span><i>→</i><b>모아서 케겔·속근육 강화</b></li><li><span>요통·요실금</span><i>→</i><b>골반저근·코어로 케어</b></li></ul></div><div class="pl step"><div class="pl-k">사이드 스텝 · 유산소</div><div class="pl-t">스텝퍼</div>
-<div class="pl-s">칼로리 소모 · 다이어트</div><ul><li><span>살이 잘 안 빠짐</span><i>→</i><b>스텝 동작으로 칼로리 소모</b></li><li><span>유산소 할 시간 없음</span><i>→</i><b>집에서 사이드 스텝 유산소</b></li></ul></div><div class="pl hip"><div class="pl-k">바깥으로 밀기 · 미용</div><div class="pl-t">힙</div>
-<div class="pl-s">예쁜 뒤태 · 바디라인</div><ul><li><span>밋밋한 엉덩이</span><i>→</i><b>밀어서 힙 볼륨업</b></li><li><span>다리·골반 라인</span><i>→</i><b>모아서 안쪽허벅지·라인 정리</b></li></ul></div></div>
+<div class="pls"><div class="pl kegel"><div class="pl-head"><i class="orb kegel"></i><div><div class="pl-k">안으로 모으기 · 건강</div><div class="pl-t">케겔</div></div></div>
+<div class="pl-s">골반저근 · 코어 건강</div><ul><li><span>약한 코어·골반저근</span><b>모아서 케겔·속근육 강화</b></li><li><span>요통·요실금</span><b>골반저근·코어로 케어</b></li></ul></div><div class="pl step"><div class="pl-head"><i class="orb step"></i><div><div class="pl-k">사이드 스텝 · 유산소</div><div class="pl-t">스텝퍼</div></div></div>
+<div class="pl-s">칼로리 소모 · 다이어트</div><ul><li><span>살이 잘 안 빠짐</span><b>스텝 동작으로 칼로리 소모</b></li><li><span>유산소 할 시간 없음</span><b>집에서 사이드 스텝 유산소</b></li></ul></div><div class="pl hip"><div class="pl-head"><i class="orb hip"></i><div><div class="pl-k">바깥으로 밀기 · 미용</div><div class="pl-t">힙</div></div></div>
+<div class="pl-s">예쁜 뒤태 · 바디라인</div><ul><li><span>밋밋한 엉덩이</span><b>밀어서 힙 볼륨업</b></li><li><span>다리·골반 라인</span><b>모아서 안쪽허벅지·라인 정리</b></li></ul></div></div>
 
 <h2>소구점</h2>
 <p class="lead">제품 효과</p>
-<table class="tb t-ap"><thead><tr><th>구분</th><th>소구점</th></tr></thead><tbody><tr class="main"><td><span class="ax-chip hip">하체 라인</span></td><td><div class="ap-t hip">360도 슬림 탄탄 하체 라인 완성 <span>(입체 애플힙)</span></div><div class="ap-d">좌우 + 상하 대각선 운동을 하기 때문에 옆라인까지 잡아줄 수 있음. 앞에서 봤을 때, 뒤에서 봤을 때, 옆에서 봤을 때 모든 방향에서 골반·하체 라인 완성.</div></td></tr><tr class=""><td><span class="ax-chip kegel">속근육</span></td><td><div class="ap-t kegel">속근육까지 채우는 이너 코어 완성 <span>(케겔·코어)</span></div><div class="ap-d">외적인 라인을 만들어주는 것뿐 아니라, 내적으로 케겔운동·코어운동 등 속근육을 강화해줌.</div></td></tr><tr class=""><td><span class="ax-chip step">유산소</span></td><td><div class="ap-t step">근력과 유산소를 동시에 <span>(사이드 스텝 카디오)</span></div><div class="ap-d">사이드 스텝퍼처럼 사용하면 유산소 운동이 되고 칼로리가 소모됨.</div></td></tr><tr class=""><td><span class="ax-chip mute">확장성</span></td><td><div class="ap-t mute">하체에서 전신으로 확장 <span>(튜빙 밴드)</span></div><div class="ap-d">튜빙 밴드 사용 시 상체 운동 및 더 강도 높은 하체 운동 가능.</div></td></tr></tbody></table>
+<div class="aps"><div class="apc main"><span class="ax-chip hip">하체 라인</span><div class="ap-t hip">360도 슬림 탄탄 하체 라인 완성 <span>(입체 애플힙)</span></div><div class="ap-d">좌우 + 상하 대각선 운동을 하기 때문에 옆라인까지 잡아줄 수 있음. 앞에서 봤을 때, 뒤에서 봤을 때, 옆에서 봤을 때 모든 방향에서 골반·하체 라인 완성.</div></div><div class="aps-sub"><div class="apc"><span class="ax-chip kegel">속근육</span><div class="ap-t kegel">속근육까지 채우는 이너 코어 완성 <span>(케겔·코어)</span></div><div class="ap-d">외적인 라인을 만들어주는 것뿐 아니라, 내적으로 케겔운동·코어운동 등 속근육을 강화해줌.</div></div><div class="apc"><span class="ax-chip step">유산소</span><div class="ap-t step">근력과 유산소를 동시에 <span>(사이드 스텝 카디오)</span></div><div class="ap-d">사이드 스텝퍼처럼 사용하면 유산소 운동이 되고 칼로리가 소모됨.</div></div><div class="apc"><span class="ax-chip mute">확장성</span><div class="ap-t mute">하체에서 전신으로 확장 <span>(튜빙 밴드)</span></div><div class="ap-d">튜빙 밴드 사용 시 상체 운동 및 더 강도 높은 하체 운동 가능.</div></div></div></div>
 
 <h2>상품명 조합안 <span class="h2sub">50자 이내 · 키워드 중복 금지 · 앞쪽 가중치</span></h2>
 <p class="lead"><b>키워드 후보</b> — 구매의도 × 여성비율 × 경쟁도</p>
