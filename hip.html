@@ -502,10 +502,9 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
 .nm th:nth-child(4),.nm td:nth-child(4){width:13%}
 .nm th:nth-child(5),.nm td:nth-child(5){width:13%}
 .nm th:nth-child(6),.nm td:nth-child(6){width:14%}
-.rank th:nth-child(1),.rank td:nth-child(1){width:10%}
-.rank th:nth-child(2),.rank td:nth-child(2){width:22%}
-.rank th:nth-child(3),.rank td:nth-child(3){width:10%}
-.rank th:nth-child(4),.rank td:nth-child(4){width:58%}
+.rank th:nth-child(1),.rank td:nth-child(1){width:14%}
+.rank th:nth-child(2),.rank td:nth-child(2){width:56%}
+.rank th:nth-child(3),.rank td:nth-child(3){width:30%}
 .rank td.empty{color:var(--t-t4);font-weight:400;text-align:center}
 .vb{border:0;cursor:pointer;font:inherit;font-size:11.5px;font-weight:800;min-width:38px;
   font-variant-numeric:tabular-nums;transition:transform .2s cubic-bezier(.25,.1,.25,1)}
@@ -533,14 +532,9 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
     <h1>힙 선행 제품명 후보</h1>
     <div class="sub">하체·힙·골반 여성 운동기구 · 후보 117개 · 2026-10-12</div>
   </header>
-<div class="voter">
-  <label for="vname">투표자</label>
-  <input id="vname" maxlength="20" placeholder="이름을 적고 후보 옆 숫자를 누르세요" autocomplete="off">
-  <span id="vmsg"></span>
-</div>
 <h2>득표 순위</h2>
-<p class="lead">한 사람이 여러 후보에 투표할 수 있다. 다시 누르면 취소된다.</p>
-<table class="nm rank"><thead><tr><th>순위</th><th>이름</th><th>표</th><th>투표한 사람</th></tr></thead><tbody id="rank"><tr><td colspan="4" class="empty">아직 투표 없음</td></tr></tbody></table>
+<p class="lead">무기명 투표. 후보 표 맨 오른쪽 숫자를 누르면 투표되고, 다시 누르면 취소된다. 여러 후보에 투표할 수 있다. <span id="vmsg"></span></p>
+<table class="nm rank"><thead><tr><th>순위</th><th>이름</th><th>표</th></tr></thead><tbody id="rank"><tr><td colspan="3" class="empty">아직 투표 없음</td></tr></tbody></table>
 
 
 <h2>선호 후보 <span class="cnt">6개</span></h2>
@@ -610,10 +604,13 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
 (function(){
   var API = 'https://kw.thesupply.co.kr/hip-vote/';
   var votes = {}, busy = false;
-  var inp = document.getElementById('vname'), msg = document.getElementById('vmsg');
-  try { inp.value = localStorage.getItem('hipVoter') || ''; } catch(e) {}
-  inp.addEventListener('input', function(){ try { localStorage.setItem('hipVoter', inp.value.trim()); } catch(e) {} render(); });
-  function me(){ return inp.value.trim(); }
+  var msg = document.getElementById('vmsg'), myId = '';
+  try { myId = localStorage.getItem('hipVoterId') || ''; } catch(e) {}
+  if (!myId) {
+    myId = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem('hipVoterId', myId); } catch(e) {}
+  }
+  function me(){ return myId; }
   function tally(){
     var t = {};
     Object.keys(votes).forEach(function(v){ (votes[v] || []).forEach(function(n){ (t[n] = t[n] || []).push(v); }); });
@@ -626,16 +623,15 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
       var n = b.dataset.n, c = (t[n] || []).length;
       b.textContent = c;
       b.classList.toggle('is-blue', mine.indexOf(n) >= 0);
-      b.title = c ? t[n].join(', ') : '';
     });
     var rows = Object.keys(t).map(function(n){ return [n, t[n]]; })
       .sort(function(a, b){ return b[1].length - a[1].length || a[0].localeCompare(b[0], 'ko'); });
     var tb = document.getElementById('rank');
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="empty">아직 투표 없음</td></tr>'; return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="3" class="empty">아직 투표 없음</td></tr>'; return; }
     var rank = 0, prev = -1;
     tb.innerHTML = rows.map(function(r, i){
       if (r[1].length !== prev) { rank = i + 1; prev = r[1].length; }
-      return '<tr><td>' + rank + '</td><td>' + esc(r[0]) + '</td><td class="pt">' + r[1].length + '</td><td>' + esc(r[1].join(' · ')) + '</td></tr>';
+      return '<tr><td>' + rank + '</td><td>' + esc(r[0]) + '</td><td class="pt">' + r[1].length + '</td></tr>';
     }).join('');
   }
   function load(){
@@ -645,7 +641,6 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
   document.addEventListener('click', function(e){
     var b = e.target.closest('.vb'); if (!b) return;
     var v = me();
-    if (!v) { msg.textContent = '이름을 먼저 적어 주세요'; msg.className = 'warn'; inp.focus(); return; }
     msg.textContent = ''; msg.className = '';
     var n = b.dataset.n, on = (votes[v] || []).indexOf(n) < 0;
     busy = true;
