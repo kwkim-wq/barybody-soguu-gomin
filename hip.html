@@ -502,9 +502,20 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
 .nm th:nth-child(4),.nm td:nth-child(4){width:13%}
 .nm th:nth-child(5),.nm td:nth-child(5){width:13%}
 .nm th:nth-child(6),.nm td:nth-child(6){width:14%}
-.rank th:nth-child(1),.rank td:nth-child(1){width:14%}
-.rank th:nth-child(2),.rank td:nth-child(2){width:56%}
-.rank th:nth-child(3),.rank td:nth-child(3){width:30%}
+.rank th:nth-child(1),.rank td:nth-child(1){width:9%}
+.rank th:nth-child(2),.rank td:nth-child(2){width:21%}
+.rank th:nth-child(3),.rank td:nth-child(3){width:56%}
+.rank th:nth-child(4),.rank td:nth-child(4){width:14%;text-align:right}
+.rank .t-tube{display:block;width:100%;height:12px}
+.rank .t-tube > i{width:0;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.rank tr.top td:nth-child(2){font-size:16px}
+.rank tr.top .t-tube{height:14px}
+.rank .pt{font-size:14px}
+.rank .pt small{font-size:11px;font-weight:700;color:var(--t-t4);margin-left:5px}
+.rank .rk{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;font-size:11.5px;font-weight:800;
+  color:var(--t-t3);background:linear-gradient(180deg,#FFFFFF,#EEF0F3);box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(2,32,71,.10),0 1px 3px rgba(2,32,71,.10)}
+.rank tr.top .rk{color:#2468DC;background:linear-gradient(180deg,#F4F9FF,#D9E9FF);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(49,130,246,.25),0 2px 6px -2px rgba(49,130,246,.4)}
+.rank tr:not(.top) .t-tube > i{background:linear-gradient(180deg,#C9E2FF 0%,#8DBBFF 45%,#6AA6FF 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 6px -2px rgba(49,130,246,.35)}
 .rank td.empty{color:var(--t-t4);font-weight:400;text-align:center}
 .vb{border:0;cursor:pointer;font:inherit;font-size:11.5px;font-weight:800;min-width:38px;
   font-variant-numeric:tabular-nums;transition:transform .2s cubic-bezier(.25,.1,.25,1)}
@@ -518,6 +529,10 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
 #vmsg{font-size:12px;color:var(--t-t3)}
 #vmsg.warn{color:#F04452;font-weight:700}
 @media (max-width:620px){
+  .rank th:nth-child(1),.rank td:nth-child(1){width:13%}
+  .rank th:nth-child(2),.rank td:nth-child(2){width:27%}
+  .rank th:nth-child(3),.rank td:nth-child(3){width:38%}
+  .rank th:nth-child(4),.rank td:nth-child(4){width:22%}
   .nm:not(.crit):not(.rank) th:nth-child(5),.nm:not(.crit):not(.rank) td:nth-child(5){display:none}
   .nm:not(.crit):not(.rank) th:nth-child(1),.nm:not(.crit):not(.rank) td:nth-child(1){width:27%}
   .nm:not(.crit):not(.rank) th:nth-child(2),.nm:not(.crit):not(.rank) td:nth-child(2){width:35%}
@@ -534,7 +549,7 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
   </header>
 <h2>득표 순위</h2>
 <p class="lead">무기명 투표. 후보 표 맨 오른쪽 숫자를 누르면 투표되고, 다시 누르면 취소된다. 여러 후보에 투표할 수 있다. <span id="vmsg"></span></p>
-<table class="nm rank"><thead><tr><th>순위</th><th>이름</th><th>표</th></tr></thead><tbody id="rank"><tr><td colspan="3" class="empty">아직 투표 없음</td></tr></tbody></table>
+<table class="nm rank"><thead><tr><th>순위</th><th>이름</th><th>득표</th><th>표</th></tr></thead><tbody id="rank"><tr><td colspan="4" class="empty">아직 투표 없음</td></tr></tbody></table>
 
 
 <h2>선호 후보 <span class="cnt">6개</span></h2>
@@ -603,7 +618,7 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
 <script>
 (function(){
   var API = 'https://kw.thesupply.co.kr/hip-vote/';
-  var votes = {}, busy = false;
+  var votes = {}, busy = false, prevW = {};
   var msg = document.getElementById('vmsg'), myId = '';
   try { myId = localStorage.getItem('hipVoterId') || ''; } catch(e) {}
   if (!myId) {
@@ -627,12 +642,20 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
     var rows = Object.keys(t).map(function(n){ return [n, t[n]]; })
       .sort(function(a, b){ return b[1].length - a[1].length || a[0].localeCompare(b[0], 'ko'); });
     var tb = document.getElementById('rank');
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="3" class="empty">아직 투표 없음</td></tr>'; return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="empty">아직 투표 없음</td></tr>'; prevW = {}; return; }
+    var max = rows[0][1].length, total = rows.reduce(function(a, r){ return a + r[1].length; }, 0);
     var rank = 0, prev = -1;
     tb.innerHTML = rows.map(function(r, i){
       if (r[1].length !== prev) { rank = i + 1; prev = r[1].length; }
-      return '<tr><td>' + rank + '</td><td>' + esc(r[0]) + '</td><td class="pt">' + r[1].length + '</td></tr>';
+      var c = r[1].length, w = Math.max(4, c / max * 100), pct = Math.round(c / total * 100);
+      return '<tr class="' + (rank === 1 ? 'top' : '') + '"><td><span class="rk">' + rank + '</span></td><td>' + esc(r[0]) +
+        '</td><td><span class="t-tube"><i data-w="' + w + '" style="width:' + (prevW[r[0]] || 0) + '%"></i></span></td><td class="pt">' + c + '<small>' + pct + '%</small></td></tr>';
     }).join('');
+    var bars = tb.querySelectorAll('.t-tube > i'), next = {};
+    rows.forEach(function(r, i){ next[r[0]] = +bars[i].dataset.w; });
+    tb.offsetWidth;
+    requestAnimationFrame(function(){ bars.forEach(function(b){ b.style.width = b.dataset.w + '%'; }); });
+    prevW = next;
   }
   function load(){
     fetch(API + 'api/votes', {cache: 'no-store'}).then(function(r){ return r.json(); })
