@@ -640,7 +640,7 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
     });
   }
   function load(){
-    fetch(API + 'api/votes', {cache: 'no-store'}).then(function(r){ return r.json(); })
+    fetch(API + 'api/votes?voter=' + encodeURIComponent(myId), {cache: 'no-store'}).then(function(r){ return r.json(); })
       .then(function(d){ if (!busy) { votes = d.votes || {}; render(); } }).catch(function(){});
   }
   document.addEventListener('click', function(e){
