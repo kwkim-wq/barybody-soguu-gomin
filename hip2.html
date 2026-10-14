@@ -540,6 +540,17 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
   .nm:not(.crit):not(.rank) th:nth-child(6),.nm:not(.crit):not(.rank) td:nth-child(6){width:19%}
   .rank td:nth-child(3),.rank th:nth-child(3){display:table-cell}
 }
+
+.nm.fin:not(.crit):not(.rank) th:nth-child(1),.nm.fin:not(.crit):not(.rank) td:nth-child(1){width:24%;display:table-cell}
+.nm.fin:not(.crit):not(.rank) th:nth-child(2),.nm.fin:not(.crit):not(.rank) td:nth-child(2){width:42%;display:table-cell}
+.nm.fin:not(.crit):not(.rank) th:nth-child(3),.nm.fin:not(.crit):not(.rank) td:nth-child(3){width:20%;display:table-cell}
+.nm.fin:not(.crit):not(.rank) th:nth-child(4),.nm.fin:not(.crit):not(.rank) td:nth-child(4){width:14%;display:table-cell}
+@media (max-width:620px){
+  .nm.fin:not(.crit):not(.rank) th:nth-child(3),.nm.fin:not(.crit):not(.rank) td:nth-child(3){display:none}
+  .nm.fin:not(.crit):not(.rank) th:nth-child(1),.nm.fin:not(.crit):not(.rank) td:nth-child(1){width:30%}
+  .nm.fin:not(.crit):not(.rank) th:nth-child(2),.nm.fin:not(.crit):not(.rank) td:nth-child(2){width:48%}
+  .nm.fin:not(.crit):not(.rank) th:nth-child(4),.nm.fin:not(.crit):not(.rank) td:nth-child(4){width:22%}
+}
 </style></head><body class="t-bg">
 <div class="page">
   <header>
@@ -549,8 +560,8 @@ h2 .cnt{font-size:12px;font-weight:700;color:var(--t-t4);letter-spacing:0}
   </header>
 <h2>결선 후보 <span class="cnt">6개</span></h2>
 <span id="vmsg"></span>
-<table class="nm"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>입 모양</th><th>박자</th><th>투표</th></tr></thead><tbody><tr><td>힙스텝</td><td>step(왕복·유산소)</td><td>동작</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip is-blue">약한 ㅡ</span></td><td><button type="button" class="t-chip vb" data-n="힙스텝">투표</button></td></tr><tr><td>힙메이커</td><td>애플힙을 만드는 기구</td><td>강조 접미</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td><td><button type="button" class="t-chip vb" data-n="힙메이커">투표</button></td></tr><tr><td>힙밸런스</td><td>balance(골반 균형)</td><td>케겔·모으기</td><td><span class="t-chip">입술 연속</span></td><td><span class="t-chip">또렷한 모음</span></td><td><button type="button" class="t-chip vb" data-n="힙밸런스">투표</button></td></tr><tr><td>힙쉐이퍼</td><td>힙 + shaper</td><td>기존</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td><td><button type="button" class="t-chip vb" data-n="힙쉐이퍼">투표</button></td></tr><tr><td>힙코어</td><td>core(속근육)</td><td>케겔·모으기</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td><td><button type="button" class="t-chip vb" data-n="힙코어">투표</button></td></tr><tr><td>힙텐션</td><td>스프링이 주는 팽팽한 저항감</td><td>감각어</td><td><span class="t-chip is-blue">이어짐</span></td><td><span class="t-chip">또렷한 모음</span></td><td><button type="button" class="t-chip vb" data-n="힙텐션">투표</button></td></tr></tbody></table>
-  <div class="foot">투표는 바리바디 서버에 저장된다. 입 모양·박자 칸은 둘째 글자의 첫소리·모음으로 분류.</div>
+<table class="nm fin"><thead><tr><th>이름</th><th>뜻</th><th>축</th><th>투표</th></tr></thead><tbody><tr><td>힙스텝</td><td>step(왕복·유산소)</td><td>동작</td><td><button type="button" class="t-chip vb" data-n="힙스텝">투표</button></td></tr><tr><td>힙메이커</td><td>애플힙을 만드는 기구</td><td>강조 접미</td><td><button type="button" class="t-chip vb" data-n="힙메이커">투표</button></td></tr><tr><td>힙밸런스</td><td>balance(골반 균형)</td><td>케겔·모으기</td><td><button type="button" class="t-chip vb" data-n="힙밸런스">투표</button></td></tr><tr><td>힙쉐이퍼</td><td>힙 + shaper</td><td>기존</td><td><button type="button" class="t-chip vb" data-n="힙쉐이퍼">투표</button></td></tr><tr><td>힙코어</td><td>core(속근육)</td><td>케겔·모으기</td><td><button type="button" class="t-chip vb" data-n="힙코어">투표</button></td></tr><tr><td>힙텐션</td><td>스프링이 주는 팽팽한 저항감</td><td>감각어</td><td><button type="button" class="t-chip vb" data-n="힙텐션">투표</button></td></tr></tbody></table>
+  <div class="foot">투표는 바리바디 서버에 저장된다.</div>
 </div>
 
 <script>
